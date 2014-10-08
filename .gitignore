@@ -1,11 +1,14 @@
 # History files
 .Rhistory
-
 # Example code in package build process
 *-Ex.R
-
 # R data files from past sessions
 .Rdata
-
 # RStudio files
 .Rproj.user/
+.Rproj.user
+Political_Networks_Final w TPII.docx
+Political_Networks_Final w TPII.pdf
+Political_Networks_Final.351114520.pdf
+Rodan - choosing a beta for bonacich.pdf
+Smith et al 2014 Social Networks PII.pdf
