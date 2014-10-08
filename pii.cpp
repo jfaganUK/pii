@@ -42,6 +42,7 @@ NumericVector piiTriadicCalc(IntegerMatrix edgeDistance, NumericVector valence, 
 	NumericVector piiBetaVector(maxDistance + 1);
 	NumericVector piIndex(nNodes);
 	double triadicPart;
+	int ed; // a holder for the current edge distance
 
 	// Initialize piiBetaVector
 	for(int k = 0; k <= maxDistance; k++) {
@@ -50,16 +51,22 @@ NumericVector piiTriadicCalc(IntegerMatrix edgeDistance, NumericVector valence, 
 
 	for(int i = 0; i < nNodes; i++) {
 		for(int j = 0; j < nEdges; j++) {
+			ed = edgeDistance(j,i);
+
+			// if this edge is negative
 			if(valence[j] < 0) {
-				negCount[edgeDistance(j,i)]++;
+				// Add it to the negative count at the edge distance
+				negCount[ed]++;
+
+				// If the edge is a member of a triad
 				if(edgeTriadic[j]) {
-					negTriadCount[edgeDistance(j,i)]++;
+					negTriadCount[ed]++;
 				}
 			}
 			if(valence[j] > 0) {
-				posCount[edgeDistance(j,i)]++;
+				posCount[ed]++;
 				if(edgeTriadic[j]) {
-					posTriadCount[edgeDistance(j,i)]++;
+					posTriadCount[ed]++;
 				}
 			}
 		}
