@@ -14,7 +14,7 @@ library(pii)
 # The pii package requires igraph. The network object must be an igraph object
 library(igraph)
 
-# create some random graph
+# create a random graph
 N <- 10
 g <- erdos.renyi.game(N, runif(N))
 
