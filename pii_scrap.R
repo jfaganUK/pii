@@ -21,7 +21,17 @@ plotty <- function(g) {
   }
 }
 
+# create some random graph
+N <- 10
+g <- erdos.renyi.game(N, runif(N))
 
+# add some random valences to each edge
+# valence can be 1 (positive tie) or -1 (negative tie)
+# the 'valence' edge attribute is required
+#E(g)$valence <- sample(c(-1, 1), length(E(g)), replace=T)
+V(g)$name <- letters[1:N]
+
+pii(g)
 
 
 # there are 18 nodes

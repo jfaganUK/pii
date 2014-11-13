@@ -12,6 +12,20 @@
 #' pii(g)
 
 pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 1, e.triads = NULL) {
+  if(!("igraph" %in% class(g))) {
+    stop("The graph object must be an igraph object.")
+  }
+  if((cl <- igraph::clusters(g))$no > 1) {
+    warning("Disconnected graph. Using only the first giant component.")
+    g <- induced.subgraph(g, which(cl$membership == which.max(cl$csize)))
+  }
+  if(!("valence" %in% names(edge.attributes(g)))) {
+    warning("Valence attribute not found. Assuming all ties are positive.")
+    E(g)$valence <- 1
+  }
+  if(length(E(g)) < 1) {
+    stop("Only one edge in the network.")
+  }
   if(is.null(e.dist)) {
     e.dist <- edge.distance(g)
   }

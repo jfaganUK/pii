@@ -17,7 +17,11 @@ edge.distance <- function(g, edge.network = NULL, add.names=T) {
   g.dist <- shortest.paths(graph.edgelist(edge.network))
   g.dist <- (g.dist[enm, 1:max.node.id] - 1) / 2
   if(add.names) {
-    colnames(g.dist) <- ns
+    if("matrix" %in% class(g.dist)) {
+      colnames(g.dist) <- ns
+    } else {
+      names(g.dist) <- ns
+    }
     g.el <- get.edgelist(g)
     rownames(g.dist) <- paste(g.el[,1],g.el[,2],sep="-")
   }

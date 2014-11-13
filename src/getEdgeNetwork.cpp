@@ -12,13 +12,14 @@ IntegerMatrix getEdgeNetworkCalc(IntegerMatrix inputEdgeList) {
 
 	// Get the maximum node id
 	for(int i = 0; i < nr; i++) {
-		if(inputEdgeList(i,1) > maxNodeID) {
+		if(inputEdgeList(i,0) > maxNodeID) {
 			maxNodeID = inputEdgeList(i,0);
-		} 
-		if(inputEdgeList(i,2) > maxNodeID) {
+		}
+		if(inputEdgeList(i,1) > maxNodeID) {
 			maxNodeID = inputEdgeList(i,1);
 		}
 	}
+
 
 	for(int i = 1; i <= nr; i++) {
 		edgeNames(i-1) = maxNodeID + i;
