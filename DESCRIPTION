@@ -1,0 +1,14 @@
+Package: pii
+Title: Implementation of the Political Independence Index
+Version: 0.1
+Authors@R: "Jesse Fagan <jesse.fagan@uky.edu> [aut, cre]"
+Description: The Political Independence Index (PII) was created to measure
+    power from a dependency perspective
+Depends:
+    R (>= 3.1.1)
+LazyData: true
+License: Apache 2.0
+Imports:
+    igraph,
+    Rcpp
+LinkingTo: Rcpp

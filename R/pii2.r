@@ -1,0 +1,31 @@
+#' Political Independence Index
+#'
+#' Returns a numeric vector of PII scores for each vertex in network.
+#'
+#' @param g An igraph graph
+#' @param pii.beta Should the vertex and edge names be added to the rows and columns of the matrix.
+#' @param e.dist (optional) an edge.distance matrix, if calculated ahead of time.
+#' @export
+#' @examples
+#' pii2(g)
+
+pii2 <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 1, e.triads = NULL) {
+  if(is.null(e.dist)) {
+    e.dist <- edge.distance(g)
+  }
+  e.dist <- matrix(as.integer(e.dist), nrow=nrow(e.dist)) # convert to an integer matrix
+  max.distance <- max(e.dist)
+  max.degree <- max(degree(g, mode='total'))
+  valence <- E(g)$valence
+  pii.x <- (log(2) - log(abs(pii.beta))) / log(max.degree)
+  if(triadic) {
+    if(is.null(e.triads)) {
+      e.triads <- triadic.edges(g)
+    }
+    x <- piiTriadicCalc(e.dist, valence, pii.beta, pii.x, max.distance, e.triads, pii.delta)
+  } else {
+    x <- piiCalc(e.dist, valence, pii.beta, pii.x, max.distance)
+  }
+  names(x) <- V(g)$name
+  x
+}

@@ -25,14 +25,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="498.90075"
-     inkscape:cy="854.24013"
+     inkscape:cx="546.46778"
+     inkscape:cy="855.85222"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1855"
-     inkscape:window-height="1056"
-     inkscape:window-x="65"
+     inkscape:window-width="1375"
+     inkscape:window-height="876"
+     inkscape:window-x="1745"
      inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <metadata
@@ -78,7 +78,7 @@
          sodipodi:role="line"
          id="tspan3795"
          x="211.12187"
-         y="273.02948"></tspan><tspan
+         y="273.02948" /><tspan
          sodipodi:role="line"
          id="tspan3797"
          x="211.12187"
@@ -156,7 +156,7 @@
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Open Sans;-inkscape-font-specification:Open Sans"
        x="373.52905"
-       y="211.85646"
+       y="211.82716"
        id="text3789-3"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/jfagan/triadicPII-graph2.png"
@@ -165,7 +165,7 @@
          sodipodi:role="line"
          id="tspan3791-5"
          x="373.52905"
-         y="211.85646">A</tspan></text>
+         y="211.82716">A</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Open Sans;-inkscape-font-specification:Open Sans"
@@ -205,8 +205,8 @@
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Open Sans;-inkscape-font-specification:Open Sans"
-       x="513.43689"
-       y="161.79787"
+       x="511.87561"
+       y="161.82716"
        id="text3793-1-4"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/jfagan/triadicPII-graph2.png"
@@ -214,12 +214,12 @@
        inkscape:export-ydpi="130.23741"><tspan
          sodipodi:role="line"
          id="tspan3795-0-4"
-         x="513.43689"
-         y="161.79787" /><tspan
+         x="511.87561"
+         y="161.82716" /><tspan
          sodipodi:role="line"
          id="tspan3797-5-3"
-         x="513.43689"
-         y="211.79787">D</tspan></text>
+         x="511.87561"
+         y="211.82716">D</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Open Sans;-inkscape-font-specification:Open Sans"
@@ -294,7 +294,7 @@
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 403.42968,198.90955 105.81347,3.28299"
+       d="m 405.88892,197.24709 105.81347,0"
        id="path3807-45"
        inkscape:connector-curvature="0"
        inkscape:export-filename="/home/jfagan/triadicPII-graph2.png"
@@ -339,7 +339,7 @@
        inkscape:export-ydpi="130.23741" />
     <path
        style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="M 546.87133,196.13164 655.2102,195.374"
+       d="m 546.87134,197.24709 108.33887,0"
        id="path3807-9-4"
        inkscape:connector-curvature="0"
        inkscape:export-filename="/home/jfagan/triadicPII-graph2.png"
@@ -347,7 +347,7 @@
        inkscape:export-ydpi="130.23741"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:none;stroke:#aa0000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:8, 4;stroke-dashoffset:0"
        d="m 612.53125,96.631615 46.71956,83.085025"
        id="path3807-9-3"
        inkscape:connector-curvature="0"
@@ -366,7 +366,7 @@
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 471.10989,79.964095 114.90486,5.303287"
+       d="m 471.10989,82.615739 114.90486,0"
        id="path3807-9-35"
        inkscape:connector-curvature="0"
        inkscape:export-filename="/home/jfagan/triadicPII-graph2.png"
@@ -427,8 +427,8 @@
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;font-family:Open Sans;-inkscape-font-specification:Open Sans"
-       x="477.93866"
-       y="252.38898"
+       x="473.39297"
+       y="250.36867"
        id="text4170-4"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/jfagan/triadicPII-graph2.png"
@@ -436,13 +436,13 @@
        inkscape:export-ydpi="130.23741"><tspan
          sodipodi:role="line"
          id="tspan4172-3"
-         x="477.93866"
-         y="252.38898">1</tspan></text>
+         x="473.39297"
+         y="250.36867">1</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;font-family:Open Sans;-inkscape-font-specification:Open Sans"
-       x="524.91077"
-       y="304.41183"
+       x="521.51917"
+       y="296.83569"
        id="text4170-5"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/jfagan/triadicPII-graph2.png"
@@ -450,13 +450,13 @@
        inkscape:export-ydpi="130.23741"><tspan
          sodipodi:role="line"
          id="tspan4172-39"
-         x="524.91077"
-         y="304.41183">1</tspan></text>
+         x="521.51917"
+         y="296.83569">1</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;font-family:Open Sans;-inkscape-font-specification:Open Sans"
-       x="559.25592"
-       y="253.39912"
+       x="560.77118"
+       y="251.8839"
        id="text4170-3"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/jfagan/triadicPII-graph2.png"
@@ -464,13 +464,13 @@
        inkscape:export-ydpi="130.23741"><tspan
          sodipodi:role="line"
          id="tspan4172-35"
-         x="559.25592"
-         y="253.39912">1</tspan></text>
+         x="560.77118"
+         y="251.8839">1</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;font-family:Open Sans;-inkscape-font-specification:Open Sans"
-       x="548.14429"
-       y="145.81787"
+       x="547.63922"
+       y="142.28233"
        id="text4170-6"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/jfagan/triadicPII-graph2.png"
@@ -478,13 +478,13 @@
        inkscape:export-ydpi="130.23741"><tspan
          sodipodi:role="line"
          id="tspan4172-67"
-         x="548.14429"
-         y="145.81787">1</tspan></text>
+         x="547.63922"
+         y="142.28233">1</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;font-family:Open Sans;-inkscape-font-specification:Open Sans"
-       x="486.01987"
-       y="132.6859"
+       x="472.88788"
+       y="147.83818"
        id="text4170-41"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/jfagan/triadicPII-graph2.png"
@@ -492,12 +492,12 @@
        inkscape:export-ydpi="130.23741"><tspan
          sodipodi:role="line"
          id="tspan4172-9"
-         x="486.01987"
-         y="132.6859">1</tspan></text>
+         x="472.88788"
+         y="147.83818">1</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;font-family:Open Sans;-inkscape-font-specification:Open Sans"
-       x="515.31433"
+       x="521.51917"
        y="78.137657"
        id="text4170-09"
        sodipodi:linespacing="125%"
@@ -506,13 +506,13 @@
        inkscape:export-ydpi="130.23741"><tspan
          sodipodi:role="line"
          id="tspan4172-7"
-         x="515.31433"
+         x="521.51917"
          y="78.137657">1</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;font-family:Open Sans;-inkscape-font-specification:Open Sans"
-       x="638.04785"
-       y="134.20111"
+       x="616.32959"
+       y="145.31279"
        id="text4170-95"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/jfagan/triadicPII-graph2.png"
@@ -520,13 +520,13 @@
        inkscape:export-ydpi="130.23741"><tspan
          sodipodi:role="line"
          id="tspan4172-38"
-         x="638.04785"
-         y="134.20111">2</tspan></text>
+         x="616.32959"
+         y="145.31279">2</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;font-family:Open Sans;-inkscape-font-specification:Open Sans"
        x="597.64172"
-       y="193.80013"
+       y="192.2849"
        id="text4170-98"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/jfagan/triadicPII-graph2.png"
@@ -535,7 +535,7 @@
          sodipodi:role="line"
          id="tspan4172-0"
          x="597.64172"
-         y="193.80013">1</tspan></text>
+         y="192.2849">1</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#666666;fill-opacity:1;stroke:none;font-family:Open Sans;-inkscape-font-specification:Open Sans"

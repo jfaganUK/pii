@@ -8,15 +8,13 @@ library(scales)
 
 options(stringsAsFactors=F)
 
-source('pii_functions.R')
-
 ###### trim ##############################
 # trims the leading and trailing spaces from a string (you can provide a vector)
 trim <- function (x) gsub("^\\s+|\\s+$", "", x)
 
 plotty <- function(g) {
   if(!('igraph' %in% class(g))) {
-    stop('Requires an igraph object.')
+    stop('Requires an igraph object.')
   } else {
     plot(g, vertex.size=8, vertex.color='SkyBlue2', vertex.frame.color='SkyBlue2', edge.arrow.size=0.5,
          vertex.label.family='Open Sans', vertex.label.cex=0.5)
@@ -89,7 +87,7 @@ getThinkGraph <- function() {
   g <- graph.edgelist(el, directed = F)
   E(g)$valence <- 1
   E(g)[1 %--% 2]$valence <- -1
-  E(g)[1 %--% 3]$valence <- -1  
+  E(g)[1 %--% 3]$valence <- -1
   g
 }
 g <- getThinkGraph()
@@ -103,8 +101,8 @@ for(i in 1:length(beta.sequence)) {
   for(j in 1:length(delta.sequence)) {
     cat('beta: ', i, ' - delta: ', j,'\r')
     samp.pii <- pii2(g,e.dist = g.ed, pii.beta = beta.sequence[i], triadic = T, pii.delta = delta.sequence[j])
-    all.pii <- rbind(all.pii, 
-                     data.table(node=names(samp.pii), pii.value=as.numeric(samp.pii), 
+    all.pii <- rbind(all.pii,
+                     data.table(node=names(samp.pii), pii.value=as.numeric(samp.pii),
                                 beta=beta.sequence[i], delta=delta.sequence[j]))
   }
 }
@@ -116,7 +114,7 @@ ggplot(all.pii, aes(x=beta, y=delta, fill=pii.value)) + geom_tile() + facet_wrap
   scale_fill_gradient(low = "white", high = "steelblue")
 
 all.pii.agg <- all.pii[,list(m.pii = mean(pii.value, na.rm=T)), by=list(beta, delta)]
-ggplot(all.pii.agg, aes(x=beta, y=delta, fill=m.pii)) + geom_tile() + 
+ggplot(all.pii.agg, aes(x=beta, y=delta, fill=m.pii)) + geom_tile() +
   scale_x_continuous('Beta') + scale_y_continuous('Delta') +
   scale_fill_gradient(low = "white", high = "steelblue")
 
@@ -151,7 +149,7 @@ benchmark(edge.distance(g), edge.distance2(g), replications = 10, order = 'relat
 g.lo <- layout.kamada.kawai(g)
 
 x <- pii2(g, pii.beta = -0.8)
-plot(g, layout=g.lo, vertex.size=rescale(x)*50, vertex.color='SkyBlue2', 
+plot(g, layout=g.lo, vertex.size=rescale(x)*50, vertex.color='SkyBlue2',
      vertex.frame.color='SkyBlue2', edge.arrow.size=0.5,
      vertex.label.family='Open Sans', vertex.label.cex=2)
 

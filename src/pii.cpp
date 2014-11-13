@@ -3,6 +3,15 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+
+//' Calculate the PII scores after the edge distances are calculated
+//' 
+//' @param edgeDistance An integer matrix of distances from the nodes to the edges
+//' @param valence The postive / negative valence of each of the edges.
+//' @param piiBeta The beta attenuation value (ideally -1.0 to -0.01)
+//' @param piiX The normalization factor based on the maximum degree.
+//' @param maxDistance The maximum distance in the edgeDistance matrix (or some user-provided max distance for very large networks)
+//' @export
 // [[Rcpp::export]]
 NumericVector piiCalc(IntegerMatrix edgeDistance, NumericVector valence, double piiBeta, double piiX, int maxDistance) {
 	int nEdges = edgeDistance.nrow(), nNodes = edgeDistance.ncol();
