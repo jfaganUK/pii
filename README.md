@@ -6,7 +6,7 @@ R Package for the Political Independence Index.
 
 ```R
 # Intall PII in R
-installed.packages("devtools")
+install.packages("devtools")
 devtools::install_github("jfaganUK/pii")
 
 # Load the package
