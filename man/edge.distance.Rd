@@ -3,19 +3,15 @@
 \alias{edge.distance}
 \title{Edge Distance}
 \usage{
-edge.distance(g, add.names = T)
+edge.distance(g, edge.network = NULL, add.names = T)
 }
 \arguments{
 \item{g}{An igraph graph}
-
-\item{add.names}{Should the vertex and edge names be added to the rows and columns of the matrix.}
 }
 \description{
-Returns a rectangular matrix where the rows are the edges of the graph, and the columns are the vertices of the graph.
-The cells of the matrix is the distance from the vertex to the edge. The edges directly incident on the vertex are distance 0.
-It is used in the calculation of PII.
+Calculates the distance from each node in the network to each edge in the network.
 }
 \examples{
-edge.distance(g)
+get.edge.network(g)
 }
 

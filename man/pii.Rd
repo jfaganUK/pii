@@ -3,7 +3,8 @@
 \alias{pii}
 \title{Political Independence Index}
 \usage{
-pii(g, pii.beta = -0.8, e.dist = NULL)
+pii(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 1,
+  e.triads = NULL)
 }
 \arguments{
 \item{g}{An igraph graph}
@@ -13,7 +14,7 @@ pii(g, pii.beta = -0.8, e.dist = NULL)
 \item{e.dist}{(optional) an edge.distance matrix, if calculated ahead of time.}
 }
 \description{
-Returns a numeric vector of PII scores for each vertex in the network.
+Returns a numeric vector of PII scores for each vertex in network.
 }
 \examples{
 pii(g)

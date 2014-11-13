@@ -14,9 +14,9 @@ trim <- function (x) gsub("^\\s+|\\s+$", "", x)
 
 plotty <- function(g) {
   if(!('igraph' %in% class(g))) {
-    stop('Requires an igraph object.')
+    stop('Requires an igraph object.')
   } else {
-    plot(g, vertex.size=8, vertex.color='SkyBlue2', vertex.frame.color='SkyBlue2', edge.arrow.size=0.5,
+    igraph::plot.igraph(g, vertex.size=8, vertex.color='SkyBlue2', vertex.frame.color='SkyBlue2', edge.arrow.size=0.5,
          vertex.label.family='Open Sans', vertex.label.cex=0.5)
   }
 }
@@ -40,7 +40,7 @@ for(i in 1:length(networkNames)) {
 names(samp) <- networkNames
 
 
-g <- graph.adjacency(samp[['samplk3']])
+g <- igraph::graph.adjacency(samp[['samplk3']])
 plotty(g)
 
 # indegree for everything...
@@ -100,7 +100,7 @@ g.ed <- edge.distance(g)
 for(i in 1:length(beta.sequence)) {
   for(j in 1:length(delta.sequence)) {
     cat('beta: ', i, ' - delta: ', j,'\r')
-    samp.pii <- pii2(g,e.dist = g.ed, pii.beta = beta.sequence[i], triadic = T, pii.delta = delta.sequence[j])
+    samp.pii <- pii(g,e.dist = g.ed, pii.beta = beta.sequence[i], triadic = T, pii.delta = delta.sequence[j])
     all.pii <- rbind(all.pii,
                      data.table(node=names(samp.pii), pii.value=as.numeric(samp.pii),
                                 beta=beta.sequence[i], delta=delta.sequence[j]))
