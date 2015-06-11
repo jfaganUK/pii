@@ -5,6 +5,7 @@ library(ggplot2)
 library(Rcpp)
 library(rbenchmark)
 library(scales)
+library(pii)
 
 options(stringsAsFactors=F)
 
@@ -93,14 +94,152 @@ E(graph.intersection(g.pos, g.neg))
 
 ### An example (figure 2) from the paper
 getThinkGraph <- function() {
-  el <- matrix(c('a','b','a','c','b','c', 'a','d', 'd','e', 'd','f', 'd','g'), ncol=2, byrow=T)
+  el <- matrix(c('a','b','a','c','b','c', 'a','d', 'd','e', 'd','f', 'd','g', 'g','e'), ncol=2, byrow=T)
   g <- graph.edgelist(el, directed = F)
   E(g)$valence <- 1
   E(g)[1 %--% 2]$valence <- -1
   E(g)[1 %--% 3]$valence <- -1
+  E(g)[5 %--% 7]$valence <- -1
+  E(g)$color <- ifelse(E(g)$valence == -1, "red", "black")
   g
 }
-g <- getThinkGraph()
+
+getThinkGraph2 <- function() {
+  el <- matrix(c('a','b', 'a','c', 'b','c', 'b','d', 'c','d', 'd','e'), ncol=2, byrow=T)
+  g <- graph.edgelist(el, directed = F)
+  E(g)$valence <- 1
+  E(g)[2 %--% 3]$valence <- -1
+  E(g)$color <- ifelse(E(g)$valence == -1, "red", "black")
+  g
+}
+g <- getThinkGraph2()
+plot(g)
+pii(g)
+
+cliques(g, min = 3, max = 3)
+triad_holder = cliques(g, min = 3, max = 3)
+node_distance_holder <- shortest.paths(g, V(g))
+
+triadCalcs <- function(){
+  triad_table <- data.table(triadID = character(), nodeID = character(), direction = character(), valence = integer(),
+                          distance = numeric())
+  for(i in 1:length(triad_holder)){
+    node1 = V(g)[triad_holder[[i]][1]]$name
+    node2 = V(g)[triad_holder[[i]][2]]$name
+    node3 = V(g)[triad_holder[[i]][3]]$name
+    triname = paste(node1, node2, node3, sep = "-")
+    edge1_2 = paste(node1, node2, sep = "-")
+    edge1_3 = paste(node1, node3, sep = "-")
+    edge2_3 = paste(node2, node3, sep = "-")
+    for(number in 1:length(V(g))){
+      refnode = V(g)[number]$name
+      dis1 = edge.distance(g)[edge1_2, refnode]
+      dis2 = edge.distance(g)[edge1_3, refnode]
+      dis3 = edge.distance(g)[edge2_3, refnode]
+      if(dis1 == dis2 & dis1 == dis3){
+        nodedis1_2 = node_distance_holder[node1, node2]
+        nodedis1_3 = node_distance_holder[node1, node3]
+        nodedis2_3 = node_distance_holder[node2, node3]
+        if(nodedis1_2 !=  nodedis1_3){
+          if(nodedis1_2 != nodedis2_3){
+            ref = edge1_2
+          }else{ref = edge1_3}
+        }else{ref = edge2_3}
+        if(ref==edge1_2){truev = valence_set[1]}
+        if(ref==edge1_3){truev = valence_set[3]}
+        if(ref==edge2_3){truev = valence_set[2]}
+        row <- data.table(triadID = triname, nodeID = refnode, direction = 'IN ', valence = truev,
+                          distance = edge.distance(g)[edge1_2, refnode])
+        triad_table <- rbind(triad_table, row, use.names=T)
+      }
+
+      else{
+        if(dis1 != dis2 ){
+          if(dis1 != dis3){
+            diff = edge1_2
+          }else{diff = edge1_3}
+        }else{diff = edge2_3}
+        p <- c(triad_holder[[i]], triad_holder[[i]][1])
+        valence_set <- E(g, path = p)$valence
+        #print(valence_set)
+        if(diff==edge1_2){truev = valence_set[1]}
+        if(diff==edge1_3){truev = valence_set[3]}
+        if(diff==edge2_3){truev = valence_set[2]}
+        row <- data.table(triadID = triname, nodeID = refnode, direction = 'OUT', valence = truev,
+                          distance = edge.distance(g)[diff, refnode])
+        triad_table <- rbind(triad_table, row, use.names=T)
+      }
+    }
+  }
+  return(triad_table)
+}
+triad_table <- triadCalcs()
+
+(triadicPII <- function(pii.beta = -0.8){
+  if(is.null(e.dist)) {
+    e.dist <- edge.distance(g)
+  }
+  e.dist <- matrix(as.integer(e.dist), nrow=nrow(e.dist)) # convert to an integer matrix
+  max.distance <- max(e.dist)
+  max.degree <- max(degree(g, mode='total'))
+  valence <- E(g)$valence
+  pii.x <- (log(2) - log(abs(pii.beta))) / log(max.degree)
+  numEdge <- length(E(g))
+  numNode <- length(V(g))
+  print(numEdge)
+  print(numNode)
+
+  inNegCount = c()
+  outNegCount = c()
+  inPosCount = c()
+  outPosCount = c()
+
+  piiBetaVector = c()
+  piIndex = numeric(numNode)
+  for(a in 0:max.distance){
+    piiBetaVector <- c(piiBetaVector, pii.beta^a)
+  }
+  for(i in 1:numNode){
+    negEdgeCount = numeric(max.distance+1)
+    posEdgeCount = numeric(max.distance+1)
+    for(j in 1:numEdge){
+      if(valence[j] < 0){
+        negEdgeCount[edge.distance(g)[j,i]+1] <- negEdgeCount[edge.distance(g)[j,i]+1]+1
+      }else{
+        posEdgeCount[edge.distance(g)[j,i]+1] <- posEdgeCount[edge.distance(g)[j,i]+1]+1
+      }
+    }
+    for(k in 1:(max.distance+1)){
+      piIndex[i] = piIndex[i] + (piiBetaVector[k] * (posEdgeCount[k]^pii.x - negEdgeCount[k]^pii.x))
+    }
+    cat('Node',i, ' counts \n')
+    print(negEdgeCount)
+    print(posEdgeCount)
+    print(piIndex)
+  }
+})()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 t1 <- proc.time()
 beta.sequence <- seq(-1, -0.1, by=0.1)
