@@ -105,7 +105,7 @@ getThinkGraph <- function() {
 }
 
 getThinkGraph2 <- function() {
-  el <- matrix(c('a','b', 'a','c', 'b','c', 'b','d', 'c','d', 'd','e'), ncol=2, byrow=T)
+  el <- matrix(c('a','b', 'a','c', 'b','c', 'b','d', 'c','d', 'd','e', 'e','f'), ncol=2, byrow=T)
   g <- graph.edgelist(el, directed = F)
   E(g)$valence <- 1
   E(g)[2 %--% 3]$valence <- -1
@@ -120,7 +120,7 @@ cliques(g, min = 3, max = 3)
 triad_holder = cliques(g, min = 3, max = 3)
 node_distance_holder <- shortest.paths(g, V(g))
 
-triadCalcs <- function(){
+triadCalcs <- function(g){
   triad_table <- data.table(triadID = character(), nodeID = character(), direction = character(), valence = integer(),
                           distance = numeric())
   for(i in 1:length(triad_holder)){
@@ -173,7 +173,7 @@ triadCalcs <- function(){
   }
   return(triad_table)
 }
-triad_table <- triadCalcs()
+triad_table <- triadCalcs(g)
 
 (regularPII <- function(pii.beta = -0.8){
   if(is.null(e.dist)) {
@@ -219,7 +219,7 @@ triad_table <- triadCalcs()
   }
 })()
 
-(triadicPII <- function(pii.beta = -0.8, pii.delta = 0.5){
+(triadicPII <- function(g, pii.beta = -0.8, pii.delta = 0.1, e.dist = NULL){
   if(is.null(e.dist)) {
     e.dist <- edge.distance(g)
   }
@@ -230,8 +230,8 @@ triad_table <- triadCalcs()
   pii.x <- (log(2) - log(abs(pii.beta))) / log(max.degree)
   numEdge <- length(E(g))
   numNode <- length(V(g))
-  print(numEdge)
-  print(numNode)
+#   print(numEdge)
+#   print(numNode)
 
   piiBetaVector = c()
   piIndex = numeric(numNode)
@@ -273,19 +273,29 @@ triad_table <- triadCalcs()
       piIndex[i] = piIndex[i] + (piiBetaVector[k] * (posEdgeCount[k]^pii.x - negEdgeCount[k]^pii.x + pii.delta*(
         outNegCount[k]^pii.x - outPosCount[k]^pii.x + inNegCount[k]^pii.x - inPosCount[k]^pii.x)))
     }
-    cat('Node',i, ' counts \n')
-    print(inNegCount)
-    print(outNegCount)
-    print(outPosCount)
-    print(inPosCount)
-    #print(negEdgeCount)
-    #print(posEdgeCount)
-    print(piIndex)
+#     cat('Node',i, ' counts \n')
+#     print(inNegCount)
+#     print(outNegCount)
+#     print(outPosCount)
+#     print(inPosCount)
+#     #print(negEdgeCount)
+#     #print(posEdgeCount)
+#     print(piIndex)
   }
-})()
+  return(piIndex)
+})(g)
+
+piis <- data.table(node = character(), pii = numeric(), delta = numeric())
+for(d in seq(0,1,by=0.1)) {
+  cat('Delta: ', d, '\n')
+  td <- triadicPII(g, pii.delta = d)
+  piis <- rbind(piis, data.table(node = V(g)$name, pii = td, delta = d))
+}
+
+ggplot(piis) + geom_line(aes(x=delta, y=pii, group=node, color=node))
 
 
-
+triadicPII(g, pii.delta=0.1)
 
 
 
