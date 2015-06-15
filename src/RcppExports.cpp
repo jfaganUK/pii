@@ -9,54 +9,42 @@ using namespace Rcpp;
 IntegerMatrix getEdgeNetworkCalc(IntegerMatrix inputEdgeList);
 RcppExport SEXP pii_getEdgeNetworkCalc(SEXP inputEdgeListSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< IntegerMatrix >::type inputEdgeList(inputEdgeListSEXP );
-        IntegerMatrix __result = getEdgeNetworkCalc(inputEdgeList);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type inputEdgeList(inputEdgeListSEXP);
+    __result = Rcpp::wrap(getEdgeNetworkCalc(inputEdgeList));
+    return __result;
 END_RCPP
 }
 // piiCalc
 NumericVector piiCalc(IntegerMatrix edgeDistance, NumericVector valence, double piiBeta, double piiX, int maxDistance);
 RcppExport SEXP pii_piiCalc(SEXP edgeDistanceSEXP, SEXP valenceSEXP, SEXP piiBetaSEXP, SEXP piiXSEXP, SEXP maxDistanceSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< IntegerMatrix >::type edgeDistance(edgeDistanceSEXP );
-        Rcpp::traits::input_parameter< NumericVector >::type valence(valenceSEXP );
-        Rcpp::traits::input_parameter< double >::type piiBeta(piiBetaSEXP );
-        Rcpp::traits::input_parameter< double >::type piiX(piiXSEXP );
-        Rcpp::traits::input_parameter< int >::type maxDistance(maxDistanceSEXP );
-        NumericVector __result = piiCalc(edgeDistance, valence, piiBeta, piiX, maxDistance);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type edgeDistance(edgeDistanceSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type valence(valenceSEXP);
+    Rcpp::traits::input_parameter< double >::type piiBeta(piiBetaSEXP);
+    Rcpp::traits::input_parameter< double >::type piiX(piiXSEXP);
+    Rcpp::traits::input_parameter< int >::type maxDistance(maxDistanceSEXP);
+    __result = Rcpp::wrap(piiCalc(edgeDistance, valence, piiBeta, piiX, maxDistance));
+    return __result;
 END_RCPP
 }
 // piiTriadicCalc
 NumericVector piiTriadicCalc(IntegerMatrix edgeDistance, NumericVector valence, double piiBeta, double piiX, int maxDistance, LogicalVector edgeTriadic, double piiDelta);
 RcppExport SEXP pii_piiTriadicCalc(SEXP edgeDistanceSEXP, SEXP valenceSEXP, SEXP piiBetaSEXP, SEXP piiXSEXP, SEXP maxDistanceSEXP, SEXP edgeTriadicSEXP, SEXP piiDeltaSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< IntegerMatrix >::type edgeDistance(edgeDistanceSEXP );
-        Rcpp::traits::input_parameter< NumericVector >::type valence(valenceSEXP );
-        Rcpp::traits::input_parameter< double >::type piiBeta(piiBetaSEXP );
-        Rcpp::traits::input_parameter< double >::type piiX(piiXSEXP );
-        Rcpp::traits::input_parameter< int >::type maxDistance(maxDistanceSEXP );
-        Rcpp::traits::input_parameter< LogicalVector >::type edgeTriadic(edgeTriadicSEXP );
-        Rcpp::traits::input_parameter< double >::type piiDelta(piiDeltaSEXP );
-        NumericVector __result = piiTriadicCalc(edgeDistance, valence, piiBeta, piiX, maxDistance, edgeTriadic, piiDelta);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type edgeDistance(edgeDistanceSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type valence(valenceSEXP);
+    Rcpp::traits::input_parameter< double >::type piiBeta(piiBetaSEXP);
+    Rcpp::traits::input_parameter< double >::type piiX(piiXSEXP);
+    Rcpp::traits::input_parameter< int >::type maxDistance(maxDistanceSEXP);
+    Rcpp::traits::input_parameter< LogicalVector >::type edgeTriadic(edgeTriadicSEXP);
+    Rcpp::traits::input_parameter< double >::type piiDelta(piiDeltaSEXP);
+    __result = Rcpp::wrap(piiTriadicCalc(edgeDistance, valence, piiBeta, piiX, maxDistance, edgeTriadic, piiDelta));
+    return __result;
 END_RCPP
 }
