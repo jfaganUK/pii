@@ -175,7 +175,7 @@ triadCalcs <- function(){
 }
 triad_table <- triadCalcs()
 
-(triadicPII <- function(pii.beta = -0.8){
+(regularPII <- function(pii.beta = -0.8){
   if(is.null(e.dist)) {
     e.dist <- edge.distance(g)
   }
@@ -189,10 +189,10 @@ triad_table <- triadCalcs()
   print(numEdge)
   print(numNode)
 
-  inNegCount = c()
-  outNegCount = c()
-  inPosCount = c()
-  outPosCount = c()
+  #nNegCount = c()
+  #outNegCount = c()
+  #inPosCount = c()
+  #outPosCount = c()
 
   piiBetaVector = c()
   piIndex = numeric(numNode)
@@ -219,7 +219,70 @@ triad_table <- triadCalcs()
   }
 })()
 
+(triadicPII <- function(pii.beta = -0.8, pii.delta = 0.5){
+  if(is.null(e.dist)) {
+    e.dist <- edge.distance(g)
+  }
+  e.dist <- matrix(as.integer(e.dist), nrow=nrow(e.dist)) # convert to an integer matrix
+  max.distance <- max(e.dist)
+  max.degree <- max(degree(g, mode='total'))
+  valence <- E(g)$valence
+  pii.x <- (log(2) - log(abs(pii.beta))) / log(max.degree)
+  numEdge <- length(E(g))
+  numNode <- length(V(g))
+  print(numEdge)
+  print(numNode)
 
+  piiBetaVector = c()
+  piIndex = numeric(numNode)
+  for(a in 0:max.distance){
+    piiBetaVector <- c(piiBetaVector, pii.beta^a)
+  }
+  for(i in 1:numNode){
+    negEdgeCount = numeric(max.distance+1)
+    posEdgeCount = numeric(max.distance+1)
+    inNegCount = numeric(max.distance+1)
+    outNegCount = numeric(max.distance+1)
+    inPosCount = numeric(max.distance+1)
+    outPosCount = numeric(max.distance+1)
+    for(j in 1:numEdge){
+      if(valence[j] < 0){
+        negEdgeCount[edge.distance(g)[j,i]+1] <- negEdgeCount[edge.distance(g)[j,i]+1]+1
+      }else{
+        posEdgeCount[edge.distance(g)[j,i]+1] <- posEdgeCount[edge.distance(g)[j,i]+1]+1
+      }
+    }
+    for(r in 1:length(triad_table$valence)){
+      if(triad_table$nodeID[r] == V(g)$name[i]){
+        if(triad_table$direction[r] == "OUT"){
+          if(triad_table$valence[r] < 0){
+            outNegCount[triad_table$distance[r]+1] <- outNegCount[triad_table$distance[r]+1]+1
+          }else{
+            outPosCount[triad_table$distance[r]+1] <- outPosCount[triad_table$distance[r]+1]+1
+          }
+        }else{
+          if(triad_table$valence[r] < 0){
+            inNegCount[triad_table$distance[r]+1] <- inNegCount[triad_table$distance[r]+1]+1
+          }else{
+            inPosCount[triad_table$distance[r]+1] <- inPosCount[triad_table$distance[r]+1]+1
+          }
+        }
+      }
+    }
+    for(k in 1:(max.distance+1)){
+      piIndex[i] = piIndex[i] + (piiBetaVector[k] * (posEdgeCount[k]^pii.x - negEdgeCount[k]^pii.x + pii.delta*(
+        outNegCount[k]^pii.x - outPosCount[k]^pii.x + inNegCount[k]^pii.x - inPosCount[k]^pii.x)))
+    }
+    cat('Node',i, ' counts \n')
+    print(inNegCount)
+    print(outNegCount)
+    print(outPosCount)
+    print(inPosCount)
+    #print(negEdgeCount)
+    #print(posEdgeCount)
+    print(piIndex)
+  }
+})()
 
 
 
