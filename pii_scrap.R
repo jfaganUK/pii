@@ -108,13 +108,13 @@ getThinkGraph2 <- function() {
   el <- matrix(c('a','b', 'a','c', 'b','c', 'b','d', 'c','d', 'd','e', 'e','f'), ncol=2, byrow=T)
   g <- graph.edgelist(el, directed = F)
   E(g)$valence <- 1
-  E(g)[2 %--% 3]$valence <- -1
+  E(g)[5 %--% 6]$valence <- -1
   E(g)$color <- ifelse(E(g)$valence == -1, "red", "black")
   g
 }
 g <- getThinkGraph2()
 plot(g)
-pii(g)
+pii(g, triadic=T)
 
 cliques(g, min = 3, max = 3)
 triad_holder = cliques(g, min = 3, max = 3)
@@ -122,7 +122,7 @@ node_distance_holder <- shortest.paths(g, V(g))
 
 triadCalcs <- function(g){
   triad_table <- data.table(triadID = character(), nodeID = character(), direction = character(), valence = integer(),
-                          distance = numeric())
+                          distance = numeric(), nodeNum = integer())
   for(i in 1:length(triad_holder)){
     node1 = V(g)[triad_holder[[i]][1]]$name
     node2 = V(g)[triad_holder[[i]][2]]$name
@@ -149,7 +149,7 @@ triadCalcs <- function(g){
         if(ref==edge1_3){truev = valence_set[3]}
         if(ref==edge2_3){truev = valence_set[2]}
         row <- data.table(triadID = triname, nodeID = refnode, direction = 'IN ', valence = truev,
-                          distance = edge.distance(g)[edge1_2, refnode])
+                          distance = edge.distance(g)[edge1_2, refnode], nodeNum = as.integer(V(g)[refnode]))
         triad_table <- rbind(triad_table, row, use.names=T)
       }
 
@@ -166,7 +166,7 @@ triadCalcs <- function(g){
         if(diff==edge1_3){truev = valence_set[3]}
         if(diff==edge2_3){truev = valence_set[2]}
         row <- data.table(triadID = triname, nodeID = refnode, direction = 'OUT', valence = truev,
-                          distance = edge.distance(g)[diff, refnode])
+                          distance = edge.distance(g)[diff, refnode],  nodeNum = as.integer(V(g)[refnode]))
         triad_table <- rbind(triad_table, row, use.names=T)
       }
     }
@@ -184,8 +184,8 @@ triad_table <- triadCalcs(g)
   max.degree <- max(degree(g, mode='total'))
   valence <- E(g)$valence
   pii.x <- (log(2) - log(abs(pii.beta))) / log(max.degree)
-  numEdge <- length(E(g))
-  numNode <- length(V(g))
+  #numEdge <- length(E(g))
+  #numNode <- length(V(g))
   print(numEdge)
   print(numNode)
 
@@ -212,10 +212,10 @@ triad_table <- triadCalcs(g)
     for(k in 1:(max.distance+1)){
       piIndex[i] = piIndex[i] + (piiBetaVector[k] * (posEdgeCount[k]^pii.x - negEdgeCount[k]^pii.x))
     }
-    cat('Node',i, ' counts \n')
-    print(negEdgeCount)
-    print(posEdgeCount)
-    print(piIndex)
+    #cat('Node',i, ' counts \n')
+#     print(negEdgeCount)
+#     print(posEdgeCount)
+     print(piIndex)
   }
 })()
 
@@ -253,6 +253,7 @@ triad_table <- triadCalcs(g)
       }
     }
     for(r in 1:length(triad_table$valence)){
+      currentValence = triad_table$direction[r]
       if(triad_table$nodeID[r] == V(g)$name[i]){
         if(triad_table$direction[r] == "OUT"){
           if(triad_table$valence[r] < 0){
@@ -333,12 +334,12 @@ all.pii[, is.neg := ifelse(pii.value < 0, "neg", "pos")]
 all.pii[, pii.value := rescale(pii.value)]
 ggplot(all.pii, aes(x=beta, y=delta, fill=pii.value)) + geom_tile() + facet_wrap(~ node) +
   scale_x_continuous('Beta') + scale_y_continuous('Delta') +
-  scale_fill_gradient(low = "white", high = "steelblue")
+  scale_fill_gradient2()
 
 all.pii.agg <- all.pii[,list(m.pii = mean(pii.value, na.rm=T)), by=list(beta, delta)]
 ggplot(all.pii.agg, aes(x=beta, y=delta, fill=m.pii)) + geom_tile() +
   scale_x_continuous('Beta') + scale_y_continuous('Delta') +
-  scale_fill_gradient(low = "white", high = "steelblue")
+  scale_fill_gradient2(low = "white", mid="brown", high = "steelblue")
 
 ggplot(all.pii.agg) + geom_point(size=15, aes(x = beta, y=delta, color=m.pii))
 

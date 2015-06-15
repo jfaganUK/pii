@@ -11,7 +11,7 @@
 #' @examples
 #' pii(g)
 
-pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 1, e.triads = NULL) {
+pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1) {
   if(!("igraph" %in% class(g))) {
     stop("The graph object must be an igraph object.")
   }
@@ -32,15 +32,13 @@ pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 1, e
   e.dist <- matrix(as.integer(e.dist), nrow=nrow(e.dist)) # convert to an integer matrix
   max.distance <- max(e.dist)
   max.degree <- max(degree(g, mode='total'))
-  valence <- E(g)$valence
+  edgevalence <- E(g)$valence
   pii.x <- (log(2) - log(abs(pii.beta))) / log(max.degree)
   if(triadic) {
-    if(is.null(e.triads)) {
-      e.triads <- triadic.edges(g)
-    }
-    x <- piiTriadicCalc(e.dist, valence, pii.beta, pii.x, max.distance, e.triads, pii.delta)
+    triad_table <- triadCalcs(g)
+    x <- piiTriadicCalc(e.dist, edgevalence, pii.beta, pii.x, max.distance, triad_table, pii.delta)
   } else {
-    x <- piiCalc(e.dist, valence, pii.beta, pii.x, max.distance)
+    x <- piiCalc(e.dist, edgevalence, pii.beta, pii.x, max.distance)
   }
   names(x) <- V(g)$name
   x
