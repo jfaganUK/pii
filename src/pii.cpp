@@ -5,7 +5,7 @@ using namespace Rcpp;
 
 
 //' Calculate the PII scores after the edge distances are calculated
-//' 
+//'
 //' @param edgeDistance An integer matrix of distances from the nodes to the edges
 //' @param valence The postive / negative valence of each of the edges.
 //' @param piiBeta The beta attenuation value (ideally -1.0 to -0.01)
@@ -13,7 +13,7 @@ using namespace Rcpp;
 //' @param maxDistance The maximum distance in the edgeDistance matrix (or some user-provided max distance for very large networks)
 //' @export
 // [[Rcpp::export]]
-NumericVector piiCalc(IntegerMatrix edgeDistance, NumericVector valence, double piiBeta, double piiX, int maxDistance) {
+NumericVector piiCalc(IntegerMatrix edgeDistance, NumericVector edgevalence, double piiBeta, double piiX, int maxDistance) {
 	int nEdges = edgeDistance.nrow(), nNodes = edgeDistance.ncol();
 	IntegerVector negCount(maxDistance+1), posCount(maxDistance+1);
 	NumericVector piiBetaVector(maxDistance + 1);
@@ -26,10 +26,10 @@ NumericVector piiCalc(IntegerMatrix edgeDistance, NumericVector valence, double 
 
 	for(int i = 0; i < nNodes; i++) {
 		for(int j = 0; j < nEdges; j++) {
-			if(valence[j] < 0) {
+			if(edgevalence[j] < 0) {
 				negCount[edgeDistance(j,i)]++;
 			}
-			if(valence[j] > 0) {
+			if(edgevalence[j] > 0) {
 				posCount[edgeDistance(j,i)]++;
 			}
 		}
@@ -44,14 +44,21 @@ NumericVector piiCalc(IntegerMatrix edgeDistance, NumericVector valence, double 
 }
 
 // [[Rcpp::export]]
-NumericVector piiTriadicCalc(IntegerMatrix edgeDistance, NumericVector valence, double piiBeta, double piiX, int maxDistance, LogicalVector edgeTriadic, double piiDelta) {
+NumericVector piiTriadicCalc(IntegerMatrix edgeDistance, NumericVector edgevalence, double piiBeta, double piiX, int maxDistance, DataFrame triadTable, double piiDelta) {
 	int nEdges = edgeDistance.nrow(), nNodes = edgeDistance.ncol();
 	IntegerVector negCount(maxDistance+1), posCount(maxDistance+1);
-	IntegerVector negTriadCount(maxDistance+1), posTriadCount(maxDistance+1);
+  IntegerVector negOutCount(maxDistance+1), negInCount(maxDistance+1),
+                posOutCount(maxDistance+1), posInCount(maxDistance+1);
 	NumericVector piiBetaVector(maxDistance + 1);
 	NumericVector piIndex(nNodes);
 	double triadicPart;
 	int ed; // a holder for the current edge distance
+
+  CharacterVector triadID = triadTable["triadID"];
+  CharacterVector direction = triadTable["direction"];
+  IntegerVector valence = triadTable["valence"];
+  IntegerVector distance = triadTable["distance"];
+  IntegerVector nodeNum = triadTable["nodeNum"];
 
 	// Initialize piiBetaVector
 	for(int k = 0; k <= maxDistance; k++) {
@@ -61,31 +68,50 @@ NumericVector piiTriadicCalc(IntegerMatrix edgeDistance, NumericVector valence, 
 	for(int i = 0; i < nNodes; i++) {
 		for(int j = 0; j < nEdges; j++) {
 			ed = edgeDistance(j,i);
-
 			// if this edge is negative
-			if(valence[j] < 0) {
+			if(edgevalence[j] < 0) {
 				// Add it to the negative count at the edge distance
 				negCount[ed]++;
-
-				// If the edge is a member of a triad
-				if(edgeTriadic[j]) {
-					negTriadCount[ed]++;
-				}
 			}
-			if(valence[j] > 0) {
+			if(edgevalence[j] > 0) {
 				posCount[ed]++;
-				if(edgeTriadic[j]) {
-					posTriadCount[ed]++;
-				}
 			}
 		}
+    for(int r = 0; r < triadID.size(); r++){
+        String currDir = direction[r];
+        int currVal = valence[r];
+        int currDist = distance[r];
+        int currNode = nodeNum[r]-1;
+        if(i == currNode){
+          if(currDir == "OUT"){
+            if(currVal < 0){
+              negOutCount[currDist]++;
+            }
+            else{
+              posOutCount[currDist]++;
+            }
+          }
+          else{
+            if(currVal < 0){
+              negInCount[currDist]++;
+            }
+            else{
+              posInCount[currDist]++;
+            }
+          }
+        }
+    }
 		for(int k = 0; k <= maxDistance; k++) {
-			triadicPart = piiDelta * (pow(posTriadCount[k], piiX) - pow(negTriadCount[k], piiX));
+			triadicPart = piiDelta * (pow(negOutCount[k], piiX) - pow(posOutCount[k], piiX) +
+                                pow(negInCount[k], piiX) - pow(posInCount[k], piiX));
 			piIndex[i] += piiBetaVector[k] * (pow(posCount[k], piiX) - pow(negCount[k], piiX) + triadicPart);
-			posTriadCount[k] = 0;
-			negTriadCount[k] = 0;
+			posOutCount[k] = 0;
+			negOutCount[k] = 0;
+      posInCount[k] = 0;
+			negInCount[k] = 0;
 			negCount[k] = 0;
 			posCount[k] = 0;
+      //Rcout << "Node: " << i << " Dist: " << k << " triadpart: " << triadicPart << std::endl;
 		}
 	}
 
