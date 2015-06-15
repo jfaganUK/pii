@@ -302,6 +302,14 @@ triadicPII(g, pii.delta=0.1)
 
 
 
+randomGraph <- function(){
+    graph <- watts.strogatz.game(1, 20, 5, 0.2)
+    E(graph)$valence <- sample(c(-1, 1), ecount(graph), replace = T, prob = c(0.2, 0.8))
+    E(graph)$color <- ifelse(E(graph)$valence == -1, "red", "black")
+    graph
+}
+
+g <- randomGraph()
 
 
 
@@ -314,7 +322,14 @@ triadicPII(g, pii.delta=0.1)
 
 
 
-
+#centralization.degree(g)$centralization
+#vcount(g)
+#ecount(g)
+#graph.density(g)
+#length(E(g)[valence == -1])
+#length(E(g)[valence == 1])
+#average.path.length(g)
+###var(pii)
 t1 <- proc.time()
 beta.sequence <- seq(-1, -0.1, by=0.1)
 delta.sequence <- seq(0, 1, by=0.1)
