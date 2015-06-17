@@ -23,6 +23,9 @@ pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1)
     warning("Valence attribute not found. Assuming all ties are positive.")
     E(g)$valence <- 1
   }
+  if(!(is.numeric(E(g)$valence))) {
+    stop("Valence attribute is not a numeric vector.")
+  }
   if(length(E(g)) < 1) {
     stop("Only one edge in the network.")
   }
