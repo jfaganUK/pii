@@ -62,7 +62,11 @@ graphData <- function(g) {
              propNegEdge = length(E(g)[valence == -1]) / ecount(g),
              modularity = modularity(walktrap.community(g)),
              rankCor = suppressWarnings(cor(pii(g, pii.beta = -0.9), pii(g, pii.beta=-0.5), method = "spearman")),
-             meanTrans = mean(transitivity(g, type='local'), na.rm=T))
+             meanTrans = mean(transitivity(g, type='local'), na.rm=T),
+             lowCorBeta = lowCor(g),
+             avgMinDistToNegEdge = avgMinDistNegEdge(g),
+             avdDistOfNegEdge = avgDistNegEdge(g))
+
 }
 
 nodeData <- function(g){
