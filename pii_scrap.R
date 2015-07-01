@@ -6,6 +6,9 @@ library(Rcpp)
 library(rbenchmark)
 library(scales)
 library(pii)
+library(dplyr)
+library(magrittr)
+library(gridExtra)
 
 options(stringsAsFactors=F)
 
@@ -298,24 +301,186 @@ ggplot(piis) + geom_line(aes(x=delta, y=pii, group=node, color=node))
 
 triadicPII(g, pii.delta=0.1)
 
+randomGraph <- function(i=0){
+    graph <- watts.strogatz.game(1, 30, 3, 0.05)
+    n <- sample(1:20, 1) / 100
+    E(graph)$valence <- sample(c(-1, 1), ecount(graph), replace = T, prob = c(n, 1-n))
+    E(graph)$color <- ifelse(E(graph)$valence == -1, "red", "black")
+    graphid <- paste0('watts-strogatz ', '#',i, sep='')
+    graph <- set.graph.attribute(graph, 'graphid', graphid)
+    graph
+}
+g <- randomGraph()
+plot(randomGraph())
 
 
+getAllRingGraphs <- function(num = 5, chain = F){
+    g <- graph.ring(num)
+    if(chain) g <- delete.edges(g, 1)
+    vals <- list()
+    length(vals) <- length(E(g))
+    for(i in 1:length(vals)){
+      vals[[i]] <- c(1, -1)
+    }
+    all.combos <- expand.grid(vals)
+    all.graphs <- list()
+    for(r in 1:length(all.combos[,1])){
+      E(g)$valence <- as.integer(all.combos[r,])
+      E(g)$color <- ifelse(E(g)$valence == -1, "red", "black")
+      V(g)$name <- letters[1:vcount(g)]
+      graphid <- paste0(ifelse(chain, 'chain',  'ring'),
+                        num, 'valence', paste0(as.integer(all.combos[r,]), collapse=''))
+      g <- set.graph.attribute(g, 'graphid', graphid)
+      all.graphs[[graphid]] <- g
+    }
+    return(all.graphs)
+}
+all.ring.graphs <- getAllRingGraphs()
 
 
+piis <- data.table(nd=character(), pii=numeric(), beta=numeric())
+for(b in seq(-1, 0, by=0.001)) {
+  piis <- rbind(piis, data.table(nd = V(g)$name, pii=pii(g, pii.beta=b), beta = b))
+}
+ggplot(piis) + geom_line()
 
 
+#centralization.degree(g)$centralization
+#vcount(g)
+#ecount(g)
+#graph.density(g)
+#length(E(g)[valence == -1])
+#length(E(g)[valence == 1])
+#average.path.length(g)
+###var(pii)
+#beta.sequence <- seq(-1, -0.1, by=0.1)
+#all.pii <- data.table(node=character(), pii.value = numeric(), beta = numeric())
+#g <- all.ring.graphs[[1]]
+#g.ed <- edge.distance(g)
+#for(b in beta.sequence) {
+#  g.pii <- pii(g,e.dist = g.ed, pii.beta = b)
+#  td <- data.table(node=1:vcount(g), pii.value=as.numeric(g.pii), degree = degree(g), beta=b)
+#  all.pii <- rbind(all.pii, td)
+#}
+
+graphData <- function(g) {
+  data.table(graphid = get.graph.attribute(g, 'graphid'),
+             meanDegree = mean(degree(g)),
+             density = graph.density(g),
+             diameter = diameter(g),
+             nodeCount = vcount(g),
+             edgeCount = ecount(g),
+             degCentralization = centralization.degree(g)$centralization,
+             avgPathLength = average.path.length(g),
+             numPosEdge = length(E(g)[valence == 1]),
+             numNegEdge = length(E(g)[valence == -1]),
+             propNegEdge = length(E(g)[valence == -1]) / ecount(g),
+             modularity = modularity(walktrap.community(g)),
+             rankCor = suppressWarnings(cor(pii(g, pii.beta = -0.9), pii(g, pii.beta=-0.5), method = "spearman")),
+             meanTrans = mean(transitivity(g, type='local'), na.rm=T))
+}
+#md(all.ring.graphs[[1]])
+gp <- do.call('rbind', mclapply(all.graphs, graphData, mc.cores=5))
+ggplot(gp, aes(y=rankCor, x=diameter)) + geom_point() + geom_smooth(method='lm')
+
+### Random graphs - Watts Strogatz ############################################
+letterNames <- function(n) {
+  nms <- character(n)
+  k <- 1
+  for(i in 1:26) {
+    for(j in 1:26) {
+      nms[k] <- paste0(letters[i], letters[j])
+      k <- k + 1
+      if(k > n) {
+        return(nms)
+      }
+    }
+  }
+}
+randomGraph <- function(i=0){
+  N <- sample(10:100, 1)
+  graph <- watts.strogatz.game(1, N, 3, 0.05)
+  n <- sample(1:20, 1) / 100
+  E(graph)$valence <- sample(c(-1, 1), ecount(graph), replace = T, prob = c(n, 1-n))
+  E(graph)$color <- ifelse(E(graph)$valence == -1, "red", "black")
+  V(graph)$name <- letterNames(vcount(graph))
+  graphid <- paste0('watts-strogatz ', '#',i, sep='')
+  graph <- set.graph.attribute(graph, 'graphid', graphid)
+  graph
+}
+igraph.options(vertex.color = '#FFFFFFAA', vertex.alpha = 0.5, vertex.size = 15, vertex.frame.color = 'grey60',
+               vertex.label.family = 'Ubuntu', vertex.label.cex = 0.7, vertex.label.color = 'blue')
+g <- randomGraph()
+plot(g)
+
+rand.graphs = list()
+for(i in 1:10000){
+  rand.graphs[[i]] <- randomGraph(i)
+}
+
+gp <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+ggplot(gp, aes(y=rankCor, x=avgPathLength)) + geom_point() + geom_smooth(method='lm')
+summary(lm1 <- lm(rankCor ~ meanTrans + avgPathLength + degCentralization + propNegEdge + density + modularity, data=gp))
+summary(lm2 <- lm(rankCor ~ avgPathLength + propNegEdge + avgPathLength:numNegEdge, data=gp))
+
+nodeData <- function(g){
+  beta.sequence <- seq(-0.9, -0.5, by=0.05)
+  all.pii <- data.table(node = numeric(), pii.value = numeric(), degree = numeric(), beta = numeric(), graphid = character(), nodeid = character())
+  g.ed <- edge.distance(g)
+  g.gid <- get.graph.attribute(g, 'graphid')
+  for(b in beta.sequence) {
+    g.pii <- pii(g, e.dist = g.ed, pii.beta = b)
+    td <- data.table(node=1:vcount(g), pii.value=as.numeric(g.pii), degree = degree(g), beta=b, graphid = g.gid, nodeid = letters[1:vcount(g)])
+    all.pii <- rbind(all.pii, td)
+  }
+  return(all.pii)
+}
 
 
+library(parallel)
+all.graphs <- list()
+for(i in 3:10) {
+  all.graphs <- c(all.graphs, getAllRingGraphs(i))
+  all.graphs <- c(all.graphs, getAllRingGraphs(i, chain=T))
+}
+nd <- do.call('rbind', mclapply(all.graphs, nodeData, mc.cores=5))
+
+# cnd <- do.call('rbind', lapply(getAllRingGraphs(3, chain = T), nodeData))
+# for(i in 4:10){
+#   cnd <- rbind(cnd, do.call('rbind', lapply(getAllRingGraphs(i, chain = T), nodeData)))
+# }
 
 
+#' table 3
+#' graph level
+#'
 
 
+nd3 <- group_by(nd, graphid, beta) %>%
+  summarize(meanPII = mean(pii.value), varPII = var(pii.value))
 
 
+all.graph.name <- unique(nd$graphid)
+k <- 31
+pdf(paste0('catalog.pdf'))
+for(k in 1:length(all.graph.name))  {
+  plot(all.graphs[[all.graph.name[k]]])
+  p <- ggplot(nd[graphid == all.graph.name[k]]) +
+    geom_line(size=3, alpha=0.6, position=position_jitter(height=0.02, width=0.02),
+              aes(x=beta, y=pii.value, group=nodeid, color=nodeid))
+  print(p)
+}
+dev.off()
 
 
-
-t1 <- proc.time()
+#centralization.degree(g)$centralization
+#vcount(g)
+#ecount(g)
+#graph.density(g)
+#length(E(g)[valence == -1])
+#length(E(g)[valence == 1])
+#average.path.length(g)
+###var(pii)
 beta.sequence <- seq(-1, -0.1, by=0.1)
 delta.sequence <- seq(0, 1, by=0.1)
 all.pii <- data.table(node=character(), pii.value = numeric(), beta = numeric(), delta = numeric())
@@ -329,7 +494,13 @@ for(i in 1:length(beta.sequence)) {
                                 beta=beta.sequence[i], delta=delta.sequence[j]))
   }
 }
-proc.time() - t1
+
+
+
+
+
+
+
 all.pii[, is.neg := ifelse(pii.value < 0, "neg", "pos")]
 all.pii[, pii.value := rescale(pii.value)]
 ggplot(all.pii, aes(x=beta, y=delta, fill=pii.value)) + geom_tile() + facet_wrap(~ node) +
