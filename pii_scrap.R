@@ -9,6 +9,7 @@ library(pii)
 library(dplyr)
 library(magrittr)
 library(gridExtra)
+library(parallel)
 
 options(stringsAsFactors=F)
 
@@ -546,6 +547,21 @@ x <- pii2(g, pii.beta = -0.8)
 plot(g, layout=g.lo, vertex.size=rescale(x)*50, vertex.color='SkyBlue2',
      vertex.frame.color='SkyBlue2', edge.arrow.size=0.5,
      vertex.label.family='Open Sans', vertex.label.cex=2)
+
+
+
+g <- randomGraph()
+plot(g)
+
+
+tb <- -1
+p1 <- pii(g, pii.beta = tb)
+x <- do.call('rbind', mclapply(seq(-1, -0.01, by=0.01), function(b) {
+  p <- pii(g, pii.beta = b)
+  data.table(b = b, rc = cor(p1, p, method = "spearman"))
+}, mc.cores = 6))
+ggplot(x, aes(x=b, y=rc)) + geom_line() + geom_smooth()
+
 
 
 
