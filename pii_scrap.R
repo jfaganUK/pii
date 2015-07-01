@@ -124,219 +124,23 @@ cliques(g, min = 3, max = 3)
 triad_holder = cliques(g, min = 3, max = 3)
 node_distance_holder <- shortest.paths(g, V(g))
 
-triadCalcs <- function(g){
-  triad_table <- data.table(triadID = character(), nodeID = character(), direction = character(), valence = integer(),
-                          distance = numeric(), nodeNum = integer())
-  for(i in 1:length(triad_holder)){
-    node1 = V(g)[triad_holder[[i]][1]]$name
-    node2 = V(g)[triad_holder[[i]][2]]$name
-    node3 = V(g)[triad_holder[[i]][3]]$name
-    triname = paste(node1, node2, node3, sep = "-")
-    edge1_2 = paste(node1, node2, sep = "-")
-    edge1_3 = paste(node1, node3, sep = "-")
-    edge2_3 = paste(node2, node3, sep = "-")
-    for(number in 1:length(V(g))){
-      refnode = V(g)[number]$name
-      dis1 = edge.distance(g)[edge1_2, refnode]
-      dis2 = edge.distance(g)[edge1_3, refnode]
-      dis3 = edge.distance(g)[edge2_3, refnode]
-      if(dis1 == dis2 & dis1 == dis3){
-        nodedis1_2 = node_distance_holder[node1, node2]
-        nodedis1_3 = node_distance_holder[node1, node3]
-        nodedis2_3 = node_distance_holder[node2, node3]
-        if(nodedis1_2 !=  nodedis1_3){
-          if(nodedis1_2 != nodedis2_3){
-            ref = edge1_2
-          }else{ref = edge1_3}
-        }else{ref = edge2_3}
-        if(ref==edge1_2){truev = valence_set[1]}
-        if(ref==edge1_3){truev = valence_set[3]}
-        if(ref==edge2_3){truev = valence_set[2]}
-        row <- data.table(triadID = triname, nodeID = refnode, direction = 'IN ', valence = truev,
-                          distance = edge.distance(g)[edge1_2, refnode], nodeNum = as.integer(V(g)[refnode]))
-        triad_table <- rbind(triad_table, row, use.names=T)
-      }
 
-      else{
-        if(dis1 != dis2 ){
-          if(dis1 != dis3){
-            diff = edge1_2
-          }else{diff = edge1_3}
-        }else{diff = edge2_3}
-        p <- c(triad_holder[[i]], triad_holder[[i]][1])
-        valence_set <- E(g, path = p)$valence
-        #print(valence_set)
-        if(diff==edge1_2){truev = valence_set[1]}
-        if(diff==edge1_3){truev = valence_set[3]}
-        if(diff==edge2_3){truev = valence_set[2]}
-        row <- data.table(triadID = triname, nodeID = refnode, direction = 'OUT', valence = truev,
-                          distance = edge.distance(g)[diff, refnode],  nodeNum = as.integer(V(g)[refnode]))
-        triad_table <- rbind(triad_table, row, use.names=T)
-      }
-    }
-  }
-  return(triad_table)
-}
-triad_table <- triadCalcs(g)
 
-(regularPII <- function(pii.beta = -0.8){
-  if(is.null(e.dist)) {
-    e.dist <- edge.distance(g)
-  }
-  e.dist <- matrix(as.integer(e.dist), nrow=nrow(e.dist)) # convert to an integer matrix
-  max.distance <- max(e.dist)
-  max.degree <- max(degree(g, mode='total'))
-  valence <- E(g)$valence
-  pii.x <- (log(2) - log(abs(pii.beta))) / log(max.degree)
-  #numEdge <- length(E(g))
-  #numNode <- length(V(g))
-  print(numEdge)
-  print(numNode)
 
-  #nNegCount = c()
-  #outNegCount = c()
-  #inPosCount = c()
-  #outPosCount = c()
 
-  piiBetaVector = c()
-  piIndex = numeric(numNode)
-  for(a in 0:max.distance){
-    piiBetaVector <- c(piiBetaVector, pii.beta^a)
-  }
-  for(i in 1:numNode){
-    negEdgeCount = numeric(max.distance+1)
-    posEdgeCount = numeric(max.distance+1)
-    for(j in 1:numEdge){
-      if(valence[j] < 0){
-        negEdgeCount[edge.distance(g)[j,i]+1] <- negEdgeCount[edge.distance(g)[j,i]+1]+1
-      }else{
-        posEdgeCount[edge.distance(g)[j,i]+1] <- posEdgeCount[edge.distance(g)[j,i]+1]+1
-      }
-    }
-    for(k in 1:(max.distance+1)){
-      piIndex[i] = piIndex[i] + (piiBetaVector[k] * (posEdgeCount[k]^pii.x - negEdgeCount[k]^pii.x))
-    }
-    #cat('Node',i, ' counts \n')
-#     print(negEdgeCount)
-#     print(posEdgeCount)
-     print(piIndex)
-  }
-})()
-
-(triadicPII <- function(g, pii.beta = -0.8, pii.delta = 0.1, e.dist = NULL){
-  if(is.null(e.dist)) {
-    e.dist <- edge.distance(g)
-  }
-  e.dist <- matrix(as.integer(e.dist), nrow=nrow(e.dist)) # convert to an integer matrix
-  max.distance <- max(e.dist)
-  max.degree <- max(degree(g, mode='total'))
-  valence <- E(g)$valence
-  pii.x <- (log(2) - log(abs(pii.beta))) / log(max.degree)
-  numEdge <- length(E(g))
-  numNode <- length(V(g))
-#   print(numEdge)
-#   print(numNode)
-
-  piiBetaVector = c()
-  piIndex = numeric(numNode)
-  for(a in 0:max.distance){
-    piiBetaVector <- c(piiBetaVector, pii.beta^a)
-  }
-  for(i in 1:numNode){
-    negEdgeCount = numeric(max.distance+1)
-    posEdgeCount = numeric(max.distance+1)
-    inNegCount = numeric(max.distance+1)
-    outNegCount = numeric(max.distance+1)
-    inPosCount = numeric(max.distance+1)
-    outPosCount = numeric(max.distance+1)
-    for(j in 1:numEdge){
-      if(valence[j] < 0){
-        negEdgeCount[edge.distance(g)[j,i]+1] <- negEdgeCount[edge.distance(g)[j,i]+1]+1
-      }else{
-        posEdgeCount[edge.distance(g)[j,i]+1] <- posEdgeCount[edge.distance(g)[j,i]+1]+1
-      }
-    }
-    for(r in 1:length(triad_table$valence)){
-      currentValence = triad_table$direction[r]
-      if(triad_table$nodeID[r] == V(g)$name[i]){
-        if(triad_table$direction[r] == "OUT"){
-          if(triad_table$valence[r] < 0){
-            outNegCount[triad_table$distance[r]+1] <- outNegCount[triad_table$distance[r]+1]+1
-          }else{
-            outPosCount[triad_table$distance[r]+1] <- outPosCount[triad_table$distance[r]+1]+1
-          }
-        }else{
-          if(triad_table$valence[r] < 0){
-            inNegCount[triad_table$distance[r]+1] <- inNegCount[triad_table$distance[r]+1]+1
-          }else{
-            inPosCount[triad_table$distance[r]+1] <- inPosCount[triad_table$distance[r]+1]+1
-          }
-        }
-      }
-    }
-    for(k in 1:(max.distance+1)){
-      piIndex[i] = piIndex[i] + (piiBetaVector[k] * (posEdgeCount[k]^pii.x - negEdgeCount[k]^pii.x + pii.delta*(
-        outNegCount[k]^pii.x - outPosCount[k]^pii.x + inNegCount[k]^pii.x - inPosCount[k]^pii.x)))
-    }
-#     cat('Node',i, ' counts \n')
-#     print(inNegCount)
-#     print(outNegCount)
-#     print(outPosCount)
-#     print(inPosCount)
-#     #print(negEdgeCount)
-#     #print(posEdgeCount)
-#     print(piIndex)
-  }
-  return(piIndex)
-})(g)
-
-piis <- data.table(node = character(), pii = numeric(), delta = numeric())
-for(d in seq(0,1,by=0.1)) {
-  cat('Delta: ', d, '\n')
-  td <- triadicPII(g, pii.delta = d)
-  piis <- rbind(piis, data.table(node = V(g)$name, pii = td, delta = d))
-}
+# piis <- data.table(node = character(), pii = numeric(), delta = numeric())
+# for(d in seq(0,1,by=0.1)) {
+#   cat('Delta: ', d, '\n')
+#   td <- triadicPII(g, pii.delta = d)
+#   piis <- rbind(piis, data.table(node = V(g)$name, pii = td, delta = d))
+# }
 
 ggplot(piis) + geom_line(aes(x=delta, y=pii, group=node, color=node))
 
 
-triadicPII(g, pii.delta=0.1)
-
-randomGraph <- function(i=0){
-    graph <- watts.strogatz.game(1, 30, 3, 0.05)
-    n <- sample(1:20, 1) / 100
-    E(graph)$valence <- sample(c(-1, 1), ecount(graph), replace = T, prob = c(n, 1-n))
-    E(graph)$color <- ifelse(E(graph)$valence == -1, "red", "black")
-    graphid <- paste0('watts-strogatz ', '#',i, sep='')
-    graph <- set.graph.attribute(graph, 'graphid', graphid)
-    graph
-}
-g <- randomGraph()
-plot(randomGraph())
 
 
-getAllRingGraphs <- function(num = 5, chain = F){
-    g <- graph.ring(num)
-    if(chain) g <- delete.edges(g, 1)
-    vals <- list()
-    length(vals) <- length(E(g))
-    for(i in 1:length(vals)){
-      vals[[i]] <- c(1, -1)
-    }
-    all.combos <- expand.grid(vals)
-    all.graphs <- list()
-    for(r in 1:length(all.combos[,1])){
-      E(g)$valence <- as.integer(all.combos[r,])
-      E(g)$color <- ifelse(E(g)$valence == -1, "red", "black")
-      V(g)$name <- letters[1:vcount(g)]
-      graphid <- paste0(ifelse(chain, 'chain',  'ring'),
-                        num, 'valence', paste0(as.integer(all.combos[r,]), collapse=''))
-      g <- set.graph.attribute(g, 'graphid', graphid)
-      all.graphs[[graphid]] <- g
-    }
-    return(all.graphs)
-}
-all.ring.graphs <- getAllRingGraphs()
+
 
 
 piis <- data.table(nd=character(), pii=numeric(), beta=numeric())
@@ -364,22 +168,7 @@ ggplot(piis) + geom_line()
 #  all.pii <- rbind(all.pii, td)
 #}
 
-graphData <- function(g) {
-  data.table(graphid = get.graph.attribute(g, 'graphid'),
-             meanDegree = mean(degree(g)),
-             density = graph.density(g),
-             diameter = diameter(g),
-             nodeCount = vcount(g),
-             edgeCount = ecount(g),
-             degCentralization = centralization.degree(g)$centralization,
-             avgPathLength = average.path.length(g),
-             numPosEdge = length(E(g)[valence == 1]),
-             numNegEdge = length(E(g)[valence == -1]),
-             propNegEdge = length(E(g)[valence == -1]) / ecount(g),
-             modularity = modularity(walktrap.community(g)),
-             rankCor = suppressWarnings(cor(pii(g, pii.beta = -0.9), pii(g, pii.beta=-0.5), method = "spearman")),
-             meanTrans = mean(transitivity(g, type='local'), na.rm=T))
-}
+
 #md(all.ring.graphs[[1]])
 gp <- do.call('rbind', mclapply(all.graphs, graphData, mc.cores=5))
 ggplot(gp, aes(y=rankCor, x=diameter)) + geom_point() + geom_smooth(method='lm')
@@ -426,18 +215,7 @@ summary(lm1 <- lm(rankCor ~ meanTrans + avgPathLength + degCentralization + prop
 summary(lm2 <- lm(rankCor ~ avgPathLength + propNegEdge + avgPathLength:numNegEdge, data=gp))
 summary(lm2 <- lm(rankCor ~ modularity, data=gp))
 
-nodeData <- function(g){
-  beta.sequence <- seq(-0.9, -0.5, by=0.05)
-  all.pii <- data.table(node = numeric(), pii.value = numeric(), degree = numeric(), beta = numeric(), graphid = character(), nodeid = character())
-  g.ed <- edge.distance(g)
-  g.gid <- get.graph.attribute(g, 'graphid')
-  for(b in beta.sequence) {
-    g.pii <- pii(g, e.dist = g.ed, pii.beta = b)
-    td <- data.table(node=1:vcount(g), pii.value=as.numeric(g.pii), degree = degree(g), beta=b, graphid = g.gid, nodeid = letters[1:vcount(g)])
-    all.pii <- rbind(all.pii, td)
-  }
-  return(all.pii)
-}
+
 
 
 library(parallel)
@@ -564,6 +342,8 @@ x <- do.call('rbind', mclapply(seq(-1, -0.01, by=0.01), function(b) {
 }, mc.cores = 6))
 ggplot(x, aes(x=b, y=rc)) + geom_line() + geom_smooth()
 
+#run calc, find beta where rc goes below .707
+#calculate avg minimum distance to negative edge
+#calculate avg distance to negative edge
 
-
-
+#finds beta where rc goes below .707
