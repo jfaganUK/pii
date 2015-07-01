@@ -400,7 +400,7 @@ letterNames <- function(n) {
 randomGraph <- function(i=0){
   N <- sample(10:100, 1)
   graph <- watts.strogatz.game(1, N, 3, 0.05)
-  n <- sample(1:20, 1) / 100
+  n <- sample(1:80, 1) / 100
   E(graph)$valence <- sample(c(-1, 1), ecount(graph), replace = T, prob = c(n, 1-n))
   E(graph)$color <- ifelse(E(graph)$valence == -1, "red", "black")
   V(graph)$name <- letterNames(vcount(graph))
@@ -420,8 +420,10 @@ for(i in 1:10000){
 
 gp <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
 ggplot(gp, aes(y=rankCor, x=avgPathLength)) + geom_point() + geom_smooth(method='lm')
+ggplot(gp, aes(y=rankCor, x=propNegEdge)) + geom_point() + geom_smooth(method='lm')
 summary(lm1 <- lm(rankCor ~ meanTrans + avgPathLength + degCentralization + propNegEdge + density + modularity, data=gp))
 summary(lm2 <- lm(rankCor ~ avgPathLength + propNegEdge + avgPathLength:numNegEdge, data=gp))
+summary(lm2 <- lm(rankCor ~ modularity, data=gp))
 
 nodeData <- function(g){
   beta.sequence <- seq(-0.9, -0.5, by=0.05)

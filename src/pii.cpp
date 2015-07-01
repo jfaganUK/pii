@@ -19,6 +19,7 @@ NumericVector piiCalc(IntegerMatrix edgeDistance, NumericVector edgevalence, dou
 	NumericVector piiBetaVector(maxDistance + 1);
 	NumericVector piIndex(nNodes);
 
+
 	// Initialize piiBetaVector
 	for(int k = 0; k <= maxDistance; k++) {
 		piiBetaVector[k] = pow(piiBeta, k);

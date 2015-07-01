@@ -3,6 +3,7 @@
 #' Calculates the distance from each node in the network to each edge in the network.
 #'
 #' @param g An igraph graph
+#' @param edge.network A pre-calculated edge network from ```get.edge.network```
 #' @export
 #' @examples
 #' get.edge.network(g)
