@@ -8,21 +8,86 @@ library(scales)
 library(pii)
 library(dplyr)
 library(magrittr)
-library(gridExtra)
 library(parallel)
 
 options(stringsAsFactors=F)
+igraph.options(vertex.color = '#FFFFFFAA', vertex.alpha = 0.5, vertex.size = 15, vertex.frame.color = 'grey60',
+               vertex.label.family = 'Ubuntu', vertex.label.cex = 0.7, vertex.label.color = 'blue')
 
-randomGraph <- function(i=0){
-  graph <- watts.strogatz.game(1, 30, 3, 0.05)
-  n <- sample(1:20, 1) / 100
+
+
+letterNames <- function(n) {
+  nms <- character(n)
+  k <- 1
+  for(i in 1:26) {
+    for(j in 1:26) {
+      nms[k] <- paste0(letters[i], letters[j])
+      k <- k + 1
+      if(k > n) {
+        return(nms)
+      }
+    }
+  }
+}
+
+# add pendants
+# bad eggs - people with lots of negative ties
+# modular networks
+# multiple component pii - break the network into different networks, calculate pii for each component, if a component has less than 3 nodes assign NA, calculate pii.x for the whole network first
+randomGraph <- function(i=0, maxnegtie = 20, pendchance = 20, badeggchance = 5, benegpercent = 80){
+  N <- sample(10:100, 1)
+  graph <- watts.strogatz.game(1, N, 3, 0.05)
+
+  #random pendants
+  for(i in 1:length(V(graph))){
+    if((sample(0:100, 1)) < pendchance){
+      graph <- add.vertices(graph, 1)
+      graph <- add.edges(graph, c(V(graph)[i], V(graph)[length(V(graph))]))
+    }
+  }
+  n <- sample(1:maxnegtie, 1) / 100
+
   E(graph)$valence <- sample(c(-1, 1), ecount(graph), replace = T, prob = c(n, 1-n))
+
+  #bad eggs
+  for(i in 1:length(V(graph))){
+    if((sample(0:100, 1)) < badeggchance){
+      E(graph)[from(V(graph)[i])]$valence <- -1
+    }
+  }
+
   E(graph)$color <- ifelse(E(graph)$valence == -1, "red", "black")
+  V(graph)$name <- letterNames(vcount(graph))
   graphid <- paste0('watts-strogatz ', '#',i, sep='')
   graph <- set.graph.attribute(graph, 'graphid', graphid)
   graph
 }
-g <- randomGraph()
+
+modularGraph <- function(nummods = 2){
+  g1 <- randomGraph()
+  V(g1)$name <- paste0(V(g1)$name, '1')
+  #set.vertex.attribute(g1, name = 'graphname', value = '1')
+  g2 <- randomGraph()
+  V(g2)$name <- paste0(V(g2)$name, '2')
+  #set.vertex.attribute(g1, name = 'graphname', value = '2')
+  igraph.options(edge.attr.comb = list(valence = max))
+  g3 <- graph.union(g1, g2)
+
+  rand1 <- sample(1:length(V(g1)), 1)
+  rand2 <- sample(1:length(V(g2)), 1)
+
+  g3 <- add.edges(g3, c(V(g3)[rand1], V(g3)[rand2]))
+  E(g3)[length(E(g3)[from(rand1)])]$valence <- 1
+
+  E(g3)$color <- ifelse(!is.na(E(g3)$color_1), E(g3)$color_1, E(g3)$color_2)
+  for(i in 1:length(E(g3))){
+    if(E(g3)[i]$valence != 1){
+      E(g3)[i]$color <- ifelse(E(g3)[i]$valence == -1, "red", "black")
+    }
+  }
+  plot(g3)
+
+}
 
 getAllRingGraphs <- function(num = 5, chain = F){
   g <- graph.ring(num)

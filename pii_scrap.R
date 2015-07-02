@@ -139,6 +139,17 @@ ggplot(piis) + geom_line(aes(x=delta, y=pii, group=node, color=node))
 
 
 
+g1 <- randomGraph()
+V(g1)$name <- paste0(V(g1)$name, '1')
+V(g1)$name <- paste0(V(g1)$name, '1')
+g2 <- randomGraph()
+V(g2)$name <- paste0(V(g2)$name, '2')
+igraph.options(edge.attr.comb = list(valence = max))
+g3 <- graph.union(g1, g2)
+
+E(g3)$color <- ifelse(!is.na(E(g3)$color_1), E(g3)$color_1, E(g3)$color_2)
+plot(g3)
+
 
 
 
@@ -174,42 +185,17 @@ gp <- do.call('rbind', mclapply(all.graphs, graphData, mc.cores=5))
 ggplot(gp, aes(y=rankCor, x=diameter)) + geom_point() + geom_smooth(method='lm')
 
 ### Random graphs - Watts Strogatz ############################################
-letterNames <- function(n) {
-  nms <- character(n)
-  k <- 1
-  for(i in 1:26) {
-    for(j in 1:26) {
-      nms[k] <- paste0(letters[i], letters[j])
-      k <- k + 1
-      if(k > n) {
-        return(nms)
-      }
-    }
-  }
-}
-randomGraph <- function(i=0){
-  N <- sample(10:100, 1)
-  graph <- watts.strogatz.game(1, N, 3, 0.05)
-  n <- sample(1:80, 1) / 100
-  E(graph)$valence <- sample(c(-1, 1), ecount(graph), replace = T, prob = c(n, 1-n))
-  E(graph)$color <- ifelse(E(graph)$valence == -1, "red", "black")
-  V(graph)$name <- letterNames(vcount(graph))
-  graphid <- paste0('watts-strogatz ', '#',i, sep='')
-  graph <- set.graph.attribute(graph, 'graphid', graphid)
-  graph
-}
-igraph.options(vertex.color = '#FFFFFFAA', vertex.alpha = 0.5, vertex.size = 15, vertex.frame.color = 'grey60',
-               vertex.label.family = 'Ubuntu', vertex.label.cex = 0.7, vertex.label.color = 'blue')
+
 g <- randomGraph()
 plot(g)
 
 rand.graphs = list()
-for(i in 1:10000){
+for(i in 1:10){
   rand.graphs[[i]] <- randomGraph(i)
 }
 
 gp <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
-ggplot(gp, aes(y=rankCor, x=avgPathLength)) + geom_point() + geom_smooth(method='lm')
+ggplot(gp, aes(y=rankCor, x=lowCorBeta)) + geom_point() + geom_smooth(method='lm')
 ggplot(gp, aes(y=rankCor, x=propNegEdge)) + geom_point() + geom_smooth(method='lm')
 summary(lm1 <- lm(rankCor ~ meanTrans + avgPathLength + degCentralization + propNegEdge + density + modularity, data=gp))
 summary(lm2 <- lm(rankCor ~ avgPathLength + propNegEdge + avgPathLength:numNegEdge, data=gp))
@@ -276,12 +262,6 @@ for(i in 1:length(beta.sequence)) {
   }
 }
 
-
-
-
-
-
-
 all.pii[, is.neg := ifelse(pii.value < 0, "neg", "pos")]
 all.pii[, pii.value := rescale(pii.value)]
 ggplot(all.pii, aes(x=beta, y=delta, fill=pii.value)) + geom_tile() + facet_wrap(~ node) +
@@ -296,43 +276,9 @@ ggplot(all.pii.agg, aes(x=beta, y=delta, fill=m.pii)) + geom_tile() +
 ggplot(all.pii.agg) + geom_point(size=15, aes(x = beta, y=delta, color=m.pii))
 
 
-### Compute an auto-correlation matrix
-
-d <- 0.5
-all.pii.d <- all.pii[delta == d]
-psi.corr <- data.table(beta1 = numeric(), beta2 = numeric(), psi = numeric())
-for(b1 in unique(all.pii.d$beta)) {
-  for(b2 in unique(all.pii.d$beta)) {
-    psi <- cor(all.pii.d[beta == b1]$pii.value, all.pii.d[beta == b2]$pii.value)
-    psi.corr <- rbind(psi.corr, data.table(beta1=b1, beta2=b2, psi=psi))
-  }
-}
-
-ggplot(psi.corr, aes(x=beta1, y=beta2, fill=psi)) + geom_tile()
-
-psi.mat <- matrix(psi.corr[order(beta1, beta2)]$psi, nrow=10)
-
-eigen(psi.mat)
-
-
-### benchmark different versions
-e.dist <- edge.distance(g)
-benchmark(pii(g), pii2(g), pii(g, e.dist = e.dist), pii2(g, e.dist = e.dist), pii2(g, e.dist = e.dist, triadic = T), replications=10, order='relative')
-benchmark(edge.distance(g), edge.distance2(g), replications = 10, order = 'relative')
-
-
-g.lo <- layout.kamada.kawai(g)
-
-x <- pii2(g, pii.beta = -0.8)
-plot(g, layout=g.lo, vertex.size=rescale(x)*50, vertex.color='SkyBlue2',
-     vertex.frame.color='SkyBlue2', edge.arrow.size=0.5,
-     vertex.label.family='Open Sans', vertex.label.cex=2)
-
-
-
+library(parallel)
 g <- randomGraph()
 plot(g)
-
 
 tb <- -1
 p1 <- pii(g, pii.beta = tb)
