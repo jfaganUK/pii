@@ -11,17 +11,9 @@
 #' @examples
 #' pii(g)
 
-pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1) {
+pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1, max.degree = NULL) {
   if(!("igraph" %in% class(g))) {
     stop("The graph object must be an igraph object.")
-  }
-  # TODO: Instead of calculating per component. Give the users an option to calculate for the whole network
-  # Also, if they don't want to calculate for the "whole-network" then we still want PII values for
-  # each node, but just run pii for each component. If you are doing the whole network though, calculate
-  # 'x' first and use the same 'x' value for each run.
-  if((cl <- igraph::clusters(g))$no > 1) {
-    warning("Disconnected graph. Using only the first giant component.")
-    g <- induced.subgraph(g, which(cl$membership == which.max(cl$csize)))
   }
   if(!("valence" %in% names(edge.attributes(g)))) {
     warning("Valence attribute not found. Assuming all ties are positive.")
@@ -31,14 +23,36 @@ pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1)
     stop("Valence attribute is not a numeric vector.")
   }
   if(length(E(g)) < 1) {
-    stop("Only one edge in the network.")
+    # TODO: return an array of NA, and give warning
+    warning("Less than one edge in the network.")
+    x <- rep(NA, vcount(g))
+    names(x) <- V(g)$name
+    return(x)
   }
   if(is.null(e.dist)) {
     e.dist <- edge.distance(g)
   }
+  # TODO: Instead of calculating per component. Give the users an option to calculate for the whole network
+  # Also, if they don't want to calculate for the "whole-network" then we still want PII values for
+  # each node, but just run pii for each component. If you are doing the whole network though, calculate
+  # 'x' first and use the same 'x' value for each run.
+  if((cl <- igraph::clusters(g))$no > 1) {
+
+    maxdeg <- max(degree(g, mode='total'))
+    graph.list <- list()
+    for(i in 1:cl$no){
+      graph.list[[i]] <- induced.subgraph(g, which(cl$membership == i))
+    }
+    x <- do.call('c',lapply(graph.list, function(g) { pii(g, pii.beta=pii.beta, triadic = triadic, pii.delta = pii.delta, max.degree = maxdeg)}))
+    names(x) <- V(g)$name
+    return(x)
+  }
+
   e.dist <- matrix(as.integer(e.dist), nrow=nrow(e.dist)) # convert to an integer matrix
   max.distance <- max(e.dist)
-  max.degree <- max(degree(g, mode='total'))
+  if(is.null(max.degree)){
+    max.degree <- max(degree(g, mode='total'))
+  }
   edgevalence <- E(g)$valence
   pii.x <- (log(2) - log(abs(pii.beta))) / log(max.degree)
   if(triadic) {
@@ -50,3 +64,4 @@ pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1)
   names(x) <- V(g)$name
   x
 }
+

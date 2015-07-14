@@ -63,30 +63,74 @@ randomGraph <- function(i=0, maxnegtie = 20, pendchance = 20, badeggchance = 5, 
   graph
 }
 
-modularGraph <- function(nummods = 2){
+modularGraph <- function(nummods = 2, orignummods = nummods, numconedges = 3, graph = NULL){
   g1 <- randomGraph()
   V(g1)$name <- paste0(V(g1)$name, '1')
+  V(g1)$grp <- 1
+  if(!(is.null(graph))){
+    g1 <- graph
+  }
   #set.vertex.attribute(g1, name = 'graphname', value = '1')
   g2 <- randomGraph()
-  V(g2)$name <- paste0(V(g2)$name, '2')
+  numdiff <- orignummods - nummods + 2
+  V(g2)$name <- paste0(V(g2)$name, numdiff)
+  V(g2)$grp <- numdiff
   #set.vertex.attribute(g1, name = 'graphname', value = '2')
   igraph.options(edge.attr.comb = list(valence = max))
-  g3 <- graph.union(g1, g2)
 
-  rand1 <- sample(1:length(V(g1)), 1)
-  rand2 <- sample(1:length(V(g2)), 1)
+  e1 <- get.data.frame(g1)
+  v1 <- get.data.frame(g1, what = 'vertices')
 
-  g3 <- add.edges(g3, c(V(g3)[rand1], V(g3)[rand2]))
-  E(g3)[length(E(g3)[from(rand1)])]$valence <- 1
+  e2 <- get.data.frame(g2)
+  v2 <- get.data.frame(g2, what = 'vertices')
 
-  E(g3)$color <- ifelse(!is.na(E(g3)$color_1), E(g3)$color_1, E(g3)$color_2)
-  for(i in 1:length(E(g3))){
-    if(E(g3)[i]$valence != 1){
-      E(g3)[i]$color <- ifelse(E(g3)[i]$valence == -1, "red", "black")
+  e.all <- rbind(e1, e2)
+  v.all <- rbind(v1, v2)
+
+  g3 <- graph.data.frame(e.all, directed = F, vertices = v.all)
+
+  if(nummods > 2){
+    nummods_2 <- nummods-1
+    g3 <- modularGraph(nummods = nummods_2, orignummods = orignummods, graph = g3)
+  }
+
+  return(g3)
+  #g3 <- graph.union(g1, g2)
+
+  #rand1 <- sample(V(g3)[V(g3)$grp_1 == 1], 1)
+  #rand2 <- sample(length(V(g1):length(V(g2)), 1)
+
+  #g3 <- add.edges(g3, c(V(g3)[rand1], V(g3)[rand2]))
+  #E(g3)[length(E(g3)[from(rand1)])]$valence <- 1
+
+  #E(g3)$color <- ifelse(!is.na(E(g3)$color_1), E(g3)$color_1, E(g3)$color_2)
+  #for(i in 1:length(E(g3))){
+  #  if(!is.na(E(g3)[i]$valence)){
+  #    E(g3)[i]$color <- ifelse(E(g3)[i]$valence == -1, "red", "black")
+  #  }
+  #}
+
+
+}
+
+tieAdder <- function(g, tiechance = 0.001){
+  e <- get.data.frame(g)
+  v <- get.data.frame(g, what = 'vertices')
+
+  for(i in 1:length(v[,1])){
+    for(j in (i+1):length(v[,1])){
+      if(v$grp[j] != v$grp[i] & runif(1) < tiechance){
+        val <- sample(c(1,-1), 1, prob = c(0.2, 0.8))
+        col <- ifelse(val == -1, "red", "black")
+
+        e <- rbind(e,
+                 data.frame(from = v$name[i], to = v$name[j],
+                            valence=val, color = col))
+      }
     }
   }
-  plot(g3)
-
+  g <- graph.data.frame(e, directed = F, vertices = v)
+  return(g)
 }
 
 getAllRingGraphs <- function(num = 5, chain = F){
