@@ -48,3 +48,17 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// triadTable
+CharacterVector triadTable(IntegerMatrix edgeDistance, IntegerMatrix shortPaths, IntegerMatrix triads, CharacterVector vertices);
+RcppExport SEXP pii_triadTable(SEXP edgeDistanceSEXP, SEXP shortPathsSEXP, SEXP triadsSEXP, SEXP verticesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type edgeDistance(edgeDistanceSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type shortPaths(shortPathsSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type triads(triadsSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type vertices(verticesSEXP);
+    __result = Rcpp::wrap(triadTable(edgeDistance, shortPaths, triads, vertices));
+    return __result;
+END_RCPP
+}
