@@ -44,6 +44,7 @@ NumericVector piiCalc(IntegerMatrix edgeDistance, NumericVector edgevalence, dou
 	return piIndex;
 }
 
+//' @export
 // [[Rcpp::export]]
 NumericVector piiTriadicCalc(IntegerMatrix edgeDistance, NumericVector edgevalence, double piiBeta, double piiX, int maxDistance, DataFrame triadTable, double piiDelta) {
 	int nEdges = edgeDistance.nrow(), nNodes = edgeDistance.ncol();
@@ -59,7 +60,7 @@ NumericVector piiTriadicCalc(IntegerMatrix edgeDistance, NumericVector edgevalen
   CharacterVector direction = triadTable["direction"];
   IntegerVector valence = triadTable["valence"];
   IntegerVector distance = triadTable["distance"];
-  IntegerVector nodeNum = triadTable["nodeNum"];
+  IntegerVector nodeNum = triadTable["nodeID"];
 
 	// Initialize piiBetaVector
 	for(int k = 0; k <= maxDistance; k++) {

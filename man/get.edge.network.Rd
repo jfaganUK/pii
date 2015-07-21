@@ -13,6 +13,7 @@ get.edge.network(g)
 Returns a modfied network where each edge in the original network is split in two and a new node is inserted in between and given the label of the original edge.
 }
 \examples{
+g <- graph.ring(10)
 get.edge.network(g)
 }
 

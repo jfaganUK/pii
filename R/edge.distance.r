@@ -19,6 +19,9 @@ edge.distance <- function(g, edge.network = NULL, add.names=T) {
   g.dist <- (g.dist[enm, 1:max.node.id] - 1) / 2
   if(add.names) {
     if("matrix" %in% class(g.dist)) {
+      if(is.null(ns)) {
+        ns <- 1:ncol(g.dist)
+      }
       colnames(g.dist) <- ns
     } else {
       names(g.dist) <- ns

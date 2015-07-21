@@ -49,16 +49,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // triadTable
-CharacterVector triadTable(IntegerMatrix edgeDistance, IntegerMatrix shortPaths, IntegerMatrix triads, CharacterVector vertices);
-RcppExport SEXP pii_triadTable(SEXP edgeDistanceSEXP, SEXP shortPathsSEXP, SEXP triadsSEXP, SEXP verticesSEXP) {
+DataFrame triadTable(List edgeDistance, IntegerMatrix shortPaths, IntegerMatrix triads, CharacterVector vertices, NumericVector edgevalence);
+RcppExport SEXP pii_triadTable(SEXP edgeDistanceSEXP, SEXP shortPathsSEXP, SEXP triadsSEXP, SEXP verticesSEXP, SEXP edgevalenceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< IntegerMatrix >::type edgeDistance(edgeDistanceSEXP);
+    Rcpp::traits::input_parameter< List >::type edgeDistance(edgeDistanceSEXP);
     Rcpp::traits::input_parameter< IntegerMatrix >::type shortPaths(shortPathsSEXP);
     Rcpp::traits::input_parameter< IntegerMatrix >::type triads(triadsSEXP);
     Rcpp::traits::input_parameter< CharacterVector >::type vertices(verticesSEXP);
-    __result = Rcpp::wrap(triadTable(edgeDistance, shortPaths, triads, vertices));
+    Rcpp::traits::input_parameter< NumericVector >::type edgevalence(edgevalenceSEXP);
+    __result = Rcpp::wrap(triadTable(edgeDistance, shortPaths, triads, vertices, edgevalence));
     return __result;
 END_RCPP
 }
