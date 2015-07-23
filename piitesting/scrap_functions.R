@@ -30,17 +30,16 @@ letterNames <- function(n) {
   }
 }
 
-# add pendants
-# bad eggs - people with lots of negative ties
-# modular networks
-# multiple component pii - break the network into different networks, calculate pii for each component, if a component has less than 3 nodes assign NA, calculate pii.x for the whole network first
-randomGraph <- function(i=0, maxnegtie = 20, pendchance = 20, badeggchance = 5, benegpercent = 80){
+
+# change the percentages to actual percentages using runif(1) < p
+
+randomGraph <- function(i=0, maxnegtie = 20, pendchance = 0.2, badeggchance = 0.05, benegpercent = 80){
   N <- sample(10:100, 1)
   graph <- watts.strogatz.game(1, N, 3, 0.05)
 
   #random pendants
   for(i in 1:length(V(graph))){
-    if((sample(0:100, 1)) < pendchance){
+    if(runif(1) < pendchance){
       graph <- add.vertices(graph, 1)
       graph <- add.edges(graph, c(V(graph)[i], V(graph)[length(V(graph))]))
     }
@@ -51,7 +50,7 @@ randomGraph <- function(i=0, maxnegtie = 20, pendchance = 20, badeggchance = 5, 
 
   #bad eggs
   for(i in 1:length(V(graph))){
-    if((sample(0:100, 1)) < badeggchance){
+    if(runif(1) < badeggchance){
       E(graph)[from(V(graph)[i])]$valence <- -1
     }
   }
@@ -206,20 +205,22 @@ lowCor <- function(g){
 }
 
 avgMinDistNegEdge <- function(g){
+  if(clusters(g)$no > 1){return(NA)}
   negEdgeDist <- edge.distance(g)[which(E(g)$valence == -1), ]
   x <- 0
-  for(i in 1:length(negEdgeDist[1,])){
+  for(i in 1:ncol(negEdgeDist)) {
     x <- x + min(negEdgeDist[,i])
   }
-  return(x / length(negEdgeDist))
+  return(x / vcount(g))
 }
 
 avgDistNegEdge <- function(g){
+  if(clusters(g)$no > 1){return(NA)}
   negEdgeDist <- edge.distance(g)[which(E(g)$valence == -1), ]
   x <- 0
-  for(i in 1:length(negEdgeDist[1,])){
+  for(i in 1:ncol(negEdgeDist)) {
     x <- x + sum(negEdgeDist[,i])
   }
-  return(x / length(negEdgeDist))
+  return(x / vcount(g))
 }
 

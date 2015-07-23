@@ -204,11 +204,14 @@ g <- randomGraph()
 plot(g)
 
 rand.graphs = list()
-for(i in 1:10){
-  rand.graphs[[i]] <- randomGraph(i)
+for(i in 1:1000){
+  rand.graphs[[i]] <- randomGraph()
 }
 
-gp <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+gp <- do.call('rbind', mclapply(rand.graphs[10:20], graphData, mc.cores=5))
+save(gp, file = "./piitesting/gp.rda")
+
+load('./piitesting/gp.rda')
 ggplot(gp, aes(y=rankCor, x=lowCorBeta)) + geom_point() + geom_smooth(method='lm')
 ggplot(gp, aes(y=rankCor, x=propNegEdge)) + geom_point() + geom_smooth(method='lm')
 summary(lm1 <- lm(rankCor ~ meanTrans + avgPathLength + degCentralization + propNegEdge + density + modularity, data=gp))
