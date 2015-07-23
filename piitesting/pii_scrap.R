@@ -73,13 +73,27 @@ samp.el <- rbind(data.table(melt(samp[['sampes']]))[value != 0,][,valence := 1],
                  data.table(melt(samp[['sampdes']]))[value != 0,][,valence :=-1])
 setnames(samp.el, c('Var1','Var2'),c('source','target'))
 
-
-
-g <- graph.edgelist(as.matrix(samp.el[,c('source','target'),with=F]), directed = F)
+#g <- graph.edgelist(as.matrix(samp.el[,c('source','target'),with=F]), directed = T)
+g <- graph.data.frame(samp.el)
 E(g)$valence <- samp.el$valence
 E(g)$weight <- samp.el$value
-g <- simplify(g, edge.attr.comb = 'min')
+g <- as.undirected(g, edge.attr.comb = 'min')
+#g <- simplify(g, edge.attr.comb = 'min')
 g.samp <- g
+
+countTieValence <- function(v, val) {
+  sum(E(g.samp)[inc(v)]$valence == val)
+}
+
+g.samp <- remove.edge.attribute(g.samp, "value")
+save(g.samp, file = 'g.samp.rda')
+
+tt <- data.table(nm = V(g.samp)$name,
+           pii = pii(g.samp),
+           pos.ties = sapply(V(g.samp), function(v) { countTieValence(v, 1) }),
+           neg.ties = sapply(V(g.samp), function(v) { countTieValence(v, -1) }))
+tt[, ratio := pos.ties / (pos.ties + neg.ties)]
+tt[order(ratio, decreasing=T)]
 
 g.pos <- graph.edgelist(as.matrix(samp.el[valence > 0,c('source','target'),with=F]), directed = F)
 g.neg <- graph.edgelist(as.matrix(samp.el[valence < 0,c('source','target'),with=F]), directed = F)

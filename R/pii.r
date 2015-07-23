@@ -65,3 +65,15 @@ pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1,
   x
 }
 
+
+#' The Sampson Monastery network.
+#'
+#' This network contains nodes representing monks in a monastery.
+#'
+#' @format An igraph object with 18 nodes and 90 edges:
+#' \describe{
+#'   \item{name}{name of the monk}
+#'   \item{valence}{valence of the edge}
+#' }
+#' @source \url{https://sites.google.com/site/ucinetsoftware/datasets/sampsonmonastery}
+"g.samp"
