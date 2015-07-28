@@ -70,6 +70,7 @@ randomGraph <- function(maxnegtie = 20, pendchance = 0.2, badeggchance = 0.05, b
   #bad eggs
   for(i in 1:length(V(graph))){
     if(runif(1) < badeggchance){
+      #TODO: add bad egg neg chance
       E(graph)[from(V(graph)[i])]$valence <- -1
     }
   }

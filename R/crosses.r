@@ -61,7 +61,7 @@ crosses<- function(g, pii.beta = -0.7, tolerance = 0.000001){
       }
     }
   }
-  na.omoit(data_frame("n1" = n1, "n2" = n2, "beta" = table,
+  na.omit(data_frame("n1" = n1, "n2" = n2, "beta" = table,
              "graphid" = ifelse(is.null(get.graph.attribute(g, "graphid")), "", get.graph.attribute(g, "graphid"))))
 }
 
