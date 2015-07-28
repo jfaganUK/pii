@@ -30,10 +30,29 @@ letterNames <- function(n) {
   }
 }
 
+guid <- function() {
+  baseuuid <- paste(sample(c(letters[1:6],0:9),30,replace=TRUE),collapse="")
+
+  paste(
+    substr(baseuuid,1,8),
+    "-",
+    substr(baseuuid,9,12),
+    "-",
+    "4",
+    substr(baseuuid,13,15),
+    "-",
+    sample(c("8","9","a","b"),1),
+    substr(baseuuid,16,18),
+    "-",
+    substr(baseuuid,19,30),
+    sep="",
+    collapse=""
+  )
+}
 
 # change the percentages to actual percentages using runif(1) < p
 
-randomGraph <- function(i=0, maxnegtie = 20, pendchance = 0.2, badeggchance = 0.05, benegpercent = 80){
+randomGraph <- function(maxnegtie = 20, pendchance = 0.2, badeggchance = 0.05, benegpercent = 80){
   N <- sample(10:100, 1)
   graph <- watts.strogatz.game(1, N, 3, 0.05)
 
@@ -57,7 +76,7 @@ randomGraph <- function(i=0, maxnegtie = 20, pendchance = 0.2, badeggchance = 0.
 
   E(graph)$color <- ifelse(E(graph)$valence == -1, "red", "black")
   V(graph)$name <- letterNames(vcount(graph))
-  graphid <- paste0('watts-strogatz ', '#',i, sep='')
+  graphid <- paste0('watts-strogatz ', '#', guid(), sep='')
   graph <- set.graph.attribute(graph, 'graphid', graphid)
   graph
 }
@@ -155,7 +174,8 @@ getAllRingGraphs <- function(num = 5, chain = F){
 }
 all.ring.graphs <- getAllRingGraphs()
 
-
+# add number of crosses
+# size-adjusted number of crosses
 graphData <- function(g) {
   data.table(graphid = get.graph.attribute(g, 'graphid'),
              meanDegree = mean(degree(g)),
@@ -173,8 +193,9 @@ graphData <- function(g) {
              meanTrans = mean(transitivity(g, type='local'), na.rm=T),
              lowCorBeta = lowCor(g),
              avgMinDistToNegEdge = avgMinDistNegEdge(g),
-             avdDistOfNegEdge = avgDistNegEdge(g))
-
+             avdDistOfNegEdge = avgDistNegEdge(g),
+             numCrosses = nrow(crosses(g)),
+             sizeAdjNumCross = nrow(crosses(g)) / factorial(vcount(g)))
 }
 
 nodeData <- function(g){

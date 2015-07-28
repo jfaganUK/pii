@@ -17,7 +17,6 @@ g.samp
 }
 \description{
 This network contains nodes representing monks in a monastery.
-diamonds.
 }
 \keyword{datasets}
 

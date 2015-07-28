@@ -10,7 +10,7 @@ library(dplyr)
 library(magrittr)
 library(gridExtra)
 library(parallel)
-
+#Re(xx[round(Im(xx), digits = 12) == 0])
 options(stringsAsFactors=F)
 
 ###### trim ##############################
@@ -183,15 +183,25 @@ ggplot(piis) + geom_line()
 #length(E(g)[valence == 1])
 #average.path.length(g)
 ###var(pii)
-#beta.sequence <- seq(-1, -0.1, by=0.1)
-#all.pii <- data.table(node=character(), pii.value = numeric(), beta = numeric())
-#g <- all.ring.graphs[[1]]
-#g.ed <- edge.distance(g)
-#for(b in beta.sequence) {
-#  g.pii <- pii(g,e.dist = g.ed, pii.beta = b)
-#  td <- data.table(node=1:vcount(g), pii.value=as.numeric(g.pii), degree = degree(g), beta=b)
-#  all.pii <- rbind(all.pii, td)
-#}
+beta.sequence <- seq(-0.9, -0.5, by=0.01)
+all.pii <- data.table(node=character(), pii.value = numeric(), beta = numeric())
+# g <- all.ring.graphs[[1]]
+g.ed <- edge.distance(g)
+for(b in beta.sequence) {
+ g.pii <- pii(g,e.dist = g.ed, pii.beta = b)
+ td <- data.table(node=V(g)$name, pii.value=as.numeric(g.pii), beta=b)
+ all.pii <- rbind(all.pii, td)
+}
+
+ggplot(all.pii[node %in% as.character(V(g)$name[c(5,9)])],
+       aes(x=beta, y=pii.value, group = node, color = node)) +
+  geom_line()
+
+
+ggplot(all.pii,
+       aes(x=beta, y=pii.value, group = node, color = node)) +
+  geom_line()
+
 
 
 #md(all.ring.graphs[[1]])
@@ -310,3 +320,39 @@ ggplot(x, aes(x=b, y=rc)) + geom_line() + geom_smooth()
 #calculate avg distance to negative edge
 
 #finds beta where rc goes below .707
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+table <- c()
+for(i in 1:vcount(g)){
+  for(j in 1:vcount(g)){
+    if(i != j){
+      xx <- polyroot((vec$pos[,i] - vec$neg[,i]) - (vec$pos[,j] - vec$neg[,j]))
+      table <- c(table, Re(xx[round(Im(xx), digits = 12) == 0]))
+    }
+  }
+}
+table <- table[table < -0.5 & table > -0.9]

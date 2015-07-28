@@ -63,3 +63,17 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// valenceEdgeCounts
+List valenceEdgeCounts(IntegerMatrix edgeDistance, NumericVector edgevalence, double piiX, int maxDistance);
+RcppExport SEXP pii_valenceEdgeCounts(SEXP edgeDistanceSEXP, SEXP edgevalenceSEXP, SEXP piiXSEXP, SEXP maxDistanceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type edgeDistance(edgeDistanceSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type edgevalence(edgevalenceSEXP);
+    Rcpp::traits::input_parameter< double >::type piiX(piiXSEXP);
+    Rcpp::traits::input_parameter< int >::type maxDistance(maxDistanceSEXP);
+    __result = Rcpp::wrap(valenceEdgeCounts(edgeDistance, edgevalence, piiX, maxDistance));
+    return __result;
+END_RCPP
+}
