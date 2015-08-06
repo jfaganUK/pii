@@ -50,9 +50,7 @@ guid <- function() {
   )
 }
 
-# change the percentages to actual percentages using runif(1) < p
-
-randomGraph <- function(maxnegtie = 20, pendchance = 0.2, badeggchance = 0.05, benegpercent = 80){
+randomGraph <- function(maxnegtie = 20, pendchance = 0.2, badeggchance = 0.05, benegpercent = 0.8){
   N <- sample(10:100, 1)
   graph <- watts.strogatz.game(1, N, 3, 0.05)
 
@@ -70,8 +68,9 @@ randomGraph <- function(maxnegtie = 20, pendchance = 0.2, badeggchance = 0.05, b
   #bad eggs
   for(i in 1:length(V(graph))){
     if(runif(1) < badeggchance){
-      #TODO: add bad egg neg chance
-      E(graph)[from(V(graph)[i])]$valence <- -1
+      for(e in E(graph)[from(V(graph)[i])]) {
+        E(graph)[e]$valence <- sample(c(-1, 1), 1, prob = c(benegpercent, 1 - benegpercent))
+      }
     }
   }
 
@@ -194,9 +193,9 @@ graphData <- function(g) {
              meanTrans = mean(transitivity(g, type='local'), na.rm=T),
              lowCorBeta = lowCor(g),
              avgMinDistToNegEdge = avgMinDistNegEdge(g),
-             avdDistOfNegEdge = avgDistNegEdge(g),
-             numCrosses = nrow(crosses(g)),
-             sizeAdjNumCross = nrow(crosses(g)) / factorial(vcount(g)))
+             avgDistOfNegEdge = avgDistNegEdge(g))
+             #numCrosses = nrow(crosses(g)),
+             #sizeAdjNumCross = nrow(crosses(g)) / factorial(vcount(g)))
 }
 
 nodeData <- function(g){
@@ -214,35 +213,35 @@ nodeData <- function(g){
 
 lowCor <- function(g){
   p1 <- pii(g, pii.beta = -1)
-  breakval = 0
+  breakval = NA
   for(b in seq(-0.99, -0.01, by=0.01)){
     p <- pii(g, pii.beta = b)
-    rc <- cor(p1, p, method = "spearman")
-    if(rc <= 0.707){
-      breakval = b
-      break
+    rc <- suppressWarnings(cor(p1, p, method = "spearman"))
+    if(is.na(rc)) {
+      return(NA)
+    }
+    if(rc <= 0.707) {
+      return(b)
     }
   }
   return(breakval)
 }
 
 avgMinDistNegEdge <- function(g){
-  if(clusters(g)$no > 1){return(NA)}
+  if(clusters(g)$no > 1){return(NA)}          # if it's multiple components
+  if(!any(E(g)$valence == -1)) { return(NA) } # if there's no neg edge
   negEdgeDist <- edge.distance(g)[which(E(g)$valence == -1), ]
-  x <- 0
-  for(i in 1:ncol(negEdgeDist)) {
-    x <- x + min(negEdgeDist[,i])
-  }
-  return(x / vcount(g))
+  negEdgeDist <- as.matrix(negEdgeDist)
+  x <- mean(apply(negEdgeDist, 2, min))
+  return(x)
 }
 
 avgDistNegEdge <- function(g){
   if(clusters(g)$no > 1){return(NA)}
+  if(!any(E(g)$valence == -1)) { return(NA) } # if there's no neg edge
   negEdgeDist <- edge.distance(g)[which(E(g)$valence == -1), ]
-  x <- 0
-  for(i in 1:ncol(negEdgeDist)) {
-    x <- x + sum(negEdgeDist[,i])
-  }
-  return(x / vcount(g))
+  negEdgeDist <- as.matrix(negEdgeDist)
+  x <- sum(negEdgeDist)
+  return(x / (vcount(g) * sum(E(g)$valence == -1)))
 }
 

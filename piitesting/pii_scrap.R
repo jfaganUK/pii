@@ -214,7 +214,7 @@ g <- randomGraph()
 plot(g)
 
 rand.graphs = list()
-for(i in 1:1000){
+for(i in 1:10){
   rand.graphs[[i]] <- randomGraph()
 }
 
@@ -324,22 +324,128 @@ ggplot(x, aes(x=b, y=rc)) + geom_line() + geom_smooth()
 
 
 
+all.graphs <- list()
+for(i in 3:10) {
+  all.graphs <- c(all.graphs, getAllRingGraphs(i))
+  all.graphs <- c(all.graphs, getAllRingGraphs(i, chain=T))
+}
+nd <- do.call('rbind', mclapply(all.graphs, nodeData, mc.cores=5))
 
 
+ring.graphs = list()
+for(i in 3:10){
+  ring.graphs <- c(ring.graphs, getAllRingGraphs(num = i))
+}
+rd <- do.call('rbind', mclapply(ring.graphs, graphData, mc.cores=5))
+save(rd, file = "./piitesting/all-ring-03-10-stats.rda")
 
 
+chain.graphs = list()
+for(i in 3:10){
+  chain.graphs <- c(chain.graphs, getAllRingGraphs(num = i, chain = T))
+}
+cd <- do.call('rbind', mclapply(chain.graphs, graphData, mc.cores=5))
+save(cd, file = "./piitesting/all-chain-03-10-stats.rda")
 
 
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0, pendchance = 0.00, badeggchance = 0.00)
+}
+
+rga <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rga, file = "./piitesting/random-graph-a-stats.rda")
 
 
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.05, pendchance = 0.00, badeggchance = 0.00)
+}
+
+rg_b <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rg_b, file = "./piitesting/random-graph-b-stats.rda")
 
 
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.00, badeggchance = 0.00)
+}
+
+rgc <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgc, file = "./piitesting/random-graph-c-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.2, pendchance = 0.00, badeggchance = 0.00)
+}
+
+rgd <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgd, file = "./piitesting/random-graph-d-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.01, badeggchance = 0.00)
+}
+
+rge <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rge, file = "./piitesting/random-graph-e-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.02, badeggchance = 0.00)
+}
+
+rgf <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgf, file = "./piitesting/random-graph-f-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.05, badeggchance = 0.00)
+}
+
+rgg <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgg, file = "./piitesting/random-graph-g-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.1, badeggchance = 0.00)
+}
+
+rgh <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgh, file = "./piitesting/random-graph-h-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.2, badeggchance = 0.00)
+}
+
+rgi <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgi, file = "./piitesting/random-graph-i-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.02, badeggchance = 0.01)
+}
+
+rgj <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgj, file = "./piitesting/random-graph-j-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.02, badeggchance = 0.05)
+}
+
+rgk <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgk, file = "./piitesting/random-graph-k-stats.rda")
 
 
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.02, badeggchance = 0.1)
+}
 
-
-
-
+rgl <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgl, file = "./piitesting/random-graph-l-stats.rda")
 
 
 
