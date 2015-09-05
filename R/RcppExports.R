@@ -28,7 +28,7 @@ triadTable <- function(edgeDistance, shortPaths, triads, vertices, edgevalence) 
 }
 
 #' @export
-valenceEdgeCounts <- function(edgeDistance, edgevalence, piiX, maxDistance) {
-    .Call('pii_valenceEdgeCounts', PACKAGE = 'pii', edgeDistance, edgevalence, piiX, maxDistance)
+valenceEdgeCounts <- function(edgeDistance, edgevalence, maxDistance) {
+    .Call('pii_valenceEdgeCounts', PACKAGE = 'pii', edgeDistance, edgevalence, maxDistance)
 }
 

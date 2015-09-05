@@ -12,19 +12,11 @@ using namespace Rcpp;
 DataFrame triadTable(List edgeDistance, IntegerMatrix shortPaths, IntegerMatrix triads, CharacterVector vertices, NumericVector edgevalence){
   DataFrame triadtable;
   CharacterVector triadID(0);
-<<<<<<< HEAD
-=======
   NumericVector nodeID(0);
->>>>>>> a8ec35fc3558098b7a9c8a29ba380ccd394c41aa
   CharacterVector direction(0);
   NumericVector valence(0);
   NumericVector distance(0);
-<<<<<<< HEAD
   IntegerVector nodeNum(0);
-
-  //   triadID = character(), direction = character(), valence = integer(),
-=======
-  //IntegerVector nodeNum(0);
   IntegerVector realvertices(0);
   for(int k = 1; k<=vertices.length(); k++){
     realvertices.push_back(k);
@@ -34,10 +26,6 @@ DataFrame triadTable(List edgeDistance, IntegerMatrix shortPaths, IntegerMatrix 
   int ed, dis1, dis2, dis3;
   String ref;
   int truev, diff;
-
-  //   triadID = character(), nodeID = character(), direction = character(), valence = integer(),
->>>>>>> a8ec35fc3558098b7a9c8a29ba380ccd394c41aa
-  //     distance = numeric(), nodeNum = integer()
 
   for(int i = 0; i < triads.nrow(); i++) {
     node1 = triads(i,0);
