@@ -4,7 +4,8 @@
 \alias{pii}
 \title{Political Independence Index}
 \usage{
-pii(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1)
+pii(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1,
+  max.degree = NULL)
 }
 \arguments{
 \item{g}{An igraph graph}

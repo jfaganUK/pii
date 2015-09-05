@@ -30,17 +30,33 @@ letterNames <- function(n) {
   }
 }
 
-# add pendants
-# bad eggs - people with lots of negative ties
-# modular networks
-# multiple component pii - break the network into different networks, calculate pii for each component, if a component has less than 3 nodes assign NA, calculate pii.x for the whole network first
-randomGraph <- function(i=0, maxnegtie = 20, pendchance = 20, badeggchance = 5, benegpercent = 80){
+guid <- function() {
+  baseuuid <- paste(sample(c(letters[1:6],0:9),30,replace=TRUE),collapse="")
+
+  paste(
+    substr(baseuuid,1,8),
+    "-",
+    substr(baseuuid,9,12),
+    "-",
+    "4",
+    substr(baseuuid,13,15),
+    "-",
+    sample(c("8","9","a","b"),1),
+    substr(baseuuid,16,18),
+    "-",
+    substr(baseuuid,19,30),
+    sep="",
+    collapse=""
+  )
+}
+
+randomGraph <- function(maxnegtie = 20, pendchance = 0.2, badeggchance = 0.05, benegpercent = 0.8){
   N <- sample(10:100, 1)
   graph <- watts.strogatz.game(1, N, 3, 0.05)
 
   #random pendants
   for(i in 1:length(V(graph))){
-    if((sample(0:100, 1)) < pendchance){
+    if(runif(1) < pendchance){
       graph <- add.vertices(graph, 1)
       graph <- add.edges(graph, c(V(graph)[i], V(graph)[length(V(graph))]))
     }
@@ -51,14 +67,16 @@ randomGraph <- function(i=0, maxnegtie = 20, pendchance = 20, badeggchance = 5, 
 
   #bad eggs
   for(i in 1:length(V(graph))){
-    if((sample(0:100, 1)) < badeggchance){
-      E(graph)[from(V(graph)[i])]$valence <- -1
+    if(runif(1) < badeggchance){
+      for(e in E(graph)[from(V(graph)[i])]) {
+        E(graph)[e]$valence <- sample(c(-1, 1), 1, prob = c(benegpercent, 1 - benegpercent))
+      }
     }
   }
 
   E(graph)$color <- ifelse(E(graph)$valence == -1, "red", "black")
   V(graph)$name <- letterNames(vcount(graph))
-  graphid <- paste0('watts-strogatz ', '#',i, sep='')
+  graphid <- paste0('watts-strogatz ', '#', guid(), sep='')
   graph <- set.graph.attribute(graph, 'graphid', graphid)
   graph
 }
@@ -156,7 +174,8 @@ getAllRingGraphs <- function(num = 5, chain = F){
 }
 all.ring.graphs <- getAllRingGraphs()
 
-
+# add number of crosses
+# size-adjusted number of crosses
 graphData <- function(g) {
   data.table(graphid = get.graph.attribute(g, 'graphid'),
              meanDegree = mean(degree(g)),
@@ -174,8 +193,9 @@ graphData <- function(g) {
              meanTrans = mean(transitivity(g, type='local'), na.rm=T),
              lowCorBeta = lowCor(g),
              avgMinDistToNegEdge = avgMinDistNegEdge(g),
-             avdDistOfNegEdge = avgDistNegEdge(g))
-
+             avgDistOfNegEdge = avgDistNegEdge(g))
+             #numCrosses = nrow(crosses(g)),
+             #sizeAdjNumCross = nrow(crosses(g)) / factorial(vcount(g)))
 }
 
 nodeData <- function(g){
@@ -193,33 +213,35 @@ nodeData <- function(g){
 
 lowCor <- function(g){
   p1 <- pii(g, pii.beta = -1)
-  breakval = 0
+  breakval = NA
   for(b in seq(-0.99, -0.01, by=0.01)){
     p <- pii(g, pii.beta = b)
-    rc <- cor(p1, p, method = "spearman")
-    if(rc <= 0.707){
-      breakval = b
-      break
+    rc <- suppressWarnings(cor(p1, p, method = "spearman"))
+    if(is.na(rc)) {
+      return(NA)
+    }
+    if(rc <= 0.707) {
+      return(b)
     }
   }
   return(breakval)
 }
 
 avgMinDistNegEdge <- function(g){
+  if(clusters(g)$no > 1){return(NA)}          # if it's multiple components
+  if(!any(E(g)$valence == -1)) { return(NA) } # if there's no neg edge
   negEdgeDist <- edge.distance(g)[which(E(g)$valence == -1), ]
-  x <- 0
-  for(i in 1:length(negEdgeDist[1,])){
-    x <- x + min(negEdgeDist[,i])
-  }
-  return(x / length(negEdgeDist))
+  negEdgeDist <- as.matrix(negEdgeDist)
+  x <- mean(apply(negEdgeDist, 2, min))
+  return(x)
 }
 
 avgDistNegEdge <- function(g){
+  if(clusters(g)$no > 1){return(NA)}
+  if(!any(E(g)$valence == -1)) { return(NA) } # if there's no neg edge
   negEdgeDist <- edge.distance(g)[which(E(g)$valence == -1), ]
-  x <- 0
-  for(i in 1:length(negEdgeDist[1,])){
-    x <- x + sum(negEdgeDist[,i])
-  }
-  return(x / length(negEdgeDist))
+  negEdgeDist <- as.matrix(negEdgeDist)
+  x <- sum(negEdgeDist)
+  return(x / (vcount(g) * sum(E(g)$valence == -1)))
 }
 

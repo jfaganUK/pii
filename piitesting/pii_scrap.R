@@ -10,7 +10,7 @@ library(dplyr)
 library(magrittr)
 library(gridExtra)
 library(parallel)
-
+#Re(xx[round(Im(xx), digits = 12) == 0])
 options(stringsAsFactors=F)
 
 ###### trim ##############################
@@ -73,13 +73,27 @@ samp.el <- rbind(data.table(melt(samp[['sampes']]))[value != 0,][,valence := 1],
                  data.table(melt(samp[['sampdes']]))[value != 0,][,valence :=-1])
 setnames(samp.el, c('Var1','Var2'),c('source','target'))
 
-
-
-g <- graph.edgelist(as.matrix(samp.el[,c('source','target'),with=F]), directed = F)
+#g <- graph.edgelist(as.matrix(samp.el[,c('source','target'),with=F]), directed = T)
+g <- graph.data.frame(samp.el)
 E(g)$valence <- samp.el$valence
 E(g)$weight <- samp.el$value
-g <- simplify(g, edge.attr.comb = 'min')
+g <- as.undirected(g, edge.attr.comb = 'min')
+#g <- simplify(g, edge.attr.comb = 'min')
 g.samp <- g
+
+countTieValence <- function(v, val) {
+  sum(E(g.samp)[inc(v)]$valence == val)
+}
+
+g.samp <- remove.edge.attribute(g.samp, "value")
+save(g.samp, file = 'g.samp.rda')
+
+tt <- data.table(nm = V(g.samp)$name,
+           pii = pii(g.samp),
+           pos.ties = sapply(V(g.samp), function(v) { countTieValence(v, 1) }),
+           neg.ties = sapply(V(g.samp), function(v) { countTieValence(v, -1) }))
+tt[, ratio := pos.ties / (pos.ties + neg.ties)]
+tt[order(ratio, decreasing=T)]
 
 g.pos <- graph.edgelist(as.matrix(samp.el[valence > 0,c('source','target'),with=F]), directed = F)
 g.neg <- graph.edgelist(as.matrix(samp.el[valence < 0,c('source','target'),with=F]), directed = F)
@@ -169,15 +183,25 @@ ggplot(piis) + geom_line()
 #length(E(g)[valence == 1])
 #average.path.length(g)
 ###var(pii)
-#beta.sequence <- seq(-1, -0.1, by=0.1)
-#all.pii <- data.table(node=character(), pii.value = numeric(), beta = numeric())
-#g <- all.ring.graphs[[1]]
-#g.ed <- edge.distance(g)
-#for(b in beta.sequence) {
-#  g.pii <- pii(g,e.dist = g.ed, pii.beta = b)
-#  td <- data.table(node=1:vcount(g), pii.value=as.numeric(g.pii), degree = degree(g), beta=b)
-#  all.pii <- rbind(all.pii, td)
-#}
+beta.sequence <- seq(-0.9, -0.5, by=0.01)
+all.pii <- data.table(node=character(), pii.value = numeric(), beta = numeric())
+# g <- all.ring.graphs[[1]]
+g.ed <- edge.distance(g)
+for(b in beta.sequence) {
+ g.pii <- pii(g,e.dist = g.ed, pii.beta = b)
+ td <- data.table(node=V(g)$name, pii.value=as.numeric(g.pii), beta=b)
+ all.pii <- rbind(all.pii, td)
+}
+
+ggplot(all.pii[node %in% as.character(V(g)$name[c(5,9)])],
+       aes(x=beta, y=pii.value, group = node, color = node)) +
+  geom_line()
+
+
+ggplot(all.pii,
+       aes(x=beta, y=pii.value, group = node, color = node)) +
+  geom_line()
+
 
 
 #md(all.ring.graphs[[1]])
@@ -191,10 +215,13 @@ plot(g)
 
 rand.graphs = list()
 for(i in 1:10){
-  rand.graphs[[i]] <- randomGraph(i)
+  rand.graphs[[i]] <- randomGraph()
 }
 
 gp <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(gp, file = "./piitesting/gp.rda")
+
+load('./piitesting/gp.rda')
 ggplot(gp, aes(y=rankCor, x=lowCorBeta)) + geom_point() + geom_smooth(method='lm')
 ggplot(gp, aes(y=rankCor, x=propNegEdge)) + geom_point() + geom_smooth(method='lm')
 summary(lm1 <- lm(rankCor ~ meanTrans + avgPathLength + degCentralization + propNegEdge + density + modularity, data=gp))
@@ -293,3 +320,145 @@ ggplot(x, aes(x=b, y=rc)) + geom_line() + geom_smooth()
 #calculate avg distance to negative edge
 
 #finds beta where rc goes below .707
+
+
+
+
+all.graphs <- list()
+for(i in 3:10) {
+  all.graphs <- c(all.graphs, getAllRingGraphs(i))
+  all.graphs <- c(all.graphs, getAllRingGraphs(i, chain=T))
+}
+nd <- do.call('rbind', mclapply(all.graphs, nodeData, mc.cores=5))
+
+
+ring.graphs = list()
+for(i in 3:10){
+  ring.graphs <- c(ring.graphs, getAllRingGraphs(num = i))
+}
+rd <- do.call('rbind', mclapply(ring.graphs, graphData, mc.cores=5))
+save(rd, file = "./piitesting/all-ring-03-10-stats.rda")
+
+
+chain.graphs = list()
+for(i in 3:10){
+  chain.graphs <- c(chain.graphs, getAllRingGraphs(num = i, chain = T))
+}
+cd <- do.call('rbind', mclapply(chain.graphs, graphData, mc.cores=5))
+save(cd, file = "./piitesting/all-chain-03-10-stats.rda")
+
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0, pendchance = 0.00, badeggchance = 0.00)
+}
+
+rga <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rga, file = "./piitesting/random-graph-a-stats.rda")
+
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.05, pendchance = 0.00, badeggchance = 0.00)
+}
+
+rg_b <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rg_b, file = "./piitesting/random-graph-b-stats.rda")
+
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.00, badeggchance = 0.00)
+}
+
+rgc <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgc, file = "./piitesting/random-graph-c-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.2, pendchance = 0.00, badeggchance = 0.00)
+}
+
+rgd <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgd, file = "./piitesting/random-graph-d-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.01, badeggchance = 0.00)
+}
+
+rge <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rge, file = "./piitesting/random-graph-e-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.02, badeggchance = 0.00)
+}
+
+rgf <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgf, file = "./piitesting/random-graph-f-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.05, badeggchance = 0.00)
+}
+
+rgg <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgg, file = "./piitesting/random-graph-g-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.1, badeggchance = 0.00)
+}
+
+rgh <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgh, file = "./piitesting/random-graph-h-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.2, badeggchance = 0.00)
+}
+
+rgi <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgi, file = "./piitesting/random-graph-i-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.02, badeggchance = 0.01)
+}
+
+rgj <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgj, file = "./piitesting/random-graph-j-stats.rda")
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.02, badeggchance = 0.05)
+}
+
+rgk <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgk, file = "./piitesting/random-graph-k-stats.rda")
+
+
+rand.graphs = list()
+for(i in 1:300){
+  rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.02, badeggchance = 0.1)
+}
+
+rgl <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
+save(rgl, file = "./piitesting/random-graph-l-stats.rda")
+
+
+
+
+
+
+table <- c()
+for(i in 1:vcount(g)){
+  for(j in 1:vcount(g)){
+    if(i != j){
+      xx <- polyroot((vec$pos[,i] - vec$neg[,i]) - (vec$pos[,j] - vec$neg[,j]))
+      table <- c(table, Re(xx[round(Im(xx), digits = 12) == 0]))
+    }
+  }
+}
+table <- table[table < -0.5 & table > -0.9]

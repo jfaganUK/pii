@@ -5,9 +5,11 @@
 #' @param g An igraph graph
 #' @export
 #' @examples
+#' g <- graph.ring(10)
 #' get.edge.network(g)
 
 get.edge.network <- function(g) {
+  require(igraph)
   el <- get.edgelist(g, names = F)
   el <- matrix(as.integer(el), nrow=nrow(el)) # convert to an integer matrix
   oel <- getEdgeNetworkCalc(el)

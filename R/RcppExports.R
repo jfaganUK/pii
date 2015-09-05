@@ -17,11 +17,18 @@ piiCalc <- function(edgeDistance, edgevalence, piiBeta, piiX, maxDistance) {
     .Call('pii_piiCalc', PACKAGE = 'pii', edgeDistance, edgevalence, piiBeta, piiX, maxDistance)
 }
 
+#' @export
 piiTriadicCalc <- function(edgeDistance, edgevalence, piiBeta, piiX, maxDistance, triadTable, piiDelta) {
     .Call('pii_piiTriadicCalc', PACKAGE = 'pii', edgeDistance, edgevalence, piiBeta, piiX, maxDistance, triadTable, piiDelta)
 }
 
-triadTable <- function(edgeDistance, shortPaths, triads, vertices) {
-    .Call('pii_triadTable', PACKAGE = 'pii', edgeDistance, shortPaths, triads, vertices)
+#' @export
+triadTable <- function(edgeDistance, shortPaths, triads, vertices, edgevalence) {
+    .Call('pii_triadTable', PACKAGE = 'pii', edgeDistance, shortPaths, triads, vertices, edgevalence)
+}
+
+#' @export
+valenceEdgeCounts <- function(edgeDistance, edgevalence, piiX, maxDistance) {
+    .Call('pii_valenceEdgeCounts', PACKAGE = 'pii', edgeDistance, edgevalence, piiX, maxDistance)
 }
 
