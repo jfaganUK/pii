@@ -7,15 +7,13 @@ using namespace std;
 // [[Rcpp::export]]
 CharacterVector triadTable(IntegerMatrix edgeDistance, IntegerMatrix shortPaths, IntegerMatrix triads, CharacterVector vertices){
   CharacterVector triadID(0);
-  CharacterVector nodeID(0);
   CharacterVector direction(0);
   IntegerVector valence(0);
   NumericVector distance(0);
   IntegerVector nodeNum(0);
 
-
-  //   triadID = character(), nodeID = character(), direction = character(), valence = integer(),
-//     distance = numeric(), nodeNum = integer()
+  //   triadID = character(), direction = character(), valence = integer(),
+  //     distance = numeric(), nodeNum = integer()
 
   for(int i = 0; i < triads.nrow(); i++) {
     triadID.push_back(vertices[i]);
