@@ -139,9 +139,6 @@ triad_holder = cliques(g, min = 3, max = 3)
 node_distance_holder <- shortest.paths(g, V(g))
 
 
-
-
-
 # piis <- data.table(node = character(), pii = numeric(), delta = numeric())
 # for(d in seq(0,1,by=0.1)) {
 #   cat('Delta: ', d, '\n')
@@ -172,7 +169,9 @@ piis <- data.table(nd=character(), pii=numeric(), beta=numeric())
 for(b in seq(-1, 0, by=0.001)) {
   piis <- rbind(piis, data.table(nd = V(g)$name, pii=pii(g, pii.beta=b), beta = b))
 }
-ggplot(piis) + geom_line()
+ggplot(piis, aes(x=beta, y=pii, group=nd, color=nd)) + geom_line()
+
+
 
 
 #centralization.degree(g)$centralization
@@ -183,15 +182,15 @@ ggplot(piis) + geom_line()
 #length(E(g)[valence == 1])
 #average.path.length(g)
 ###var(pii)
-#beta.sequence <- seq(-1, -0.1, by=0.1)
-#all.pii <- data.table(node=character(), pii.value = numeric(), beta = numeric())
-#g <- all.ring.graphs[[1]]
-#g.ed <- edge.distance(g)
-#for(b in beta.sequence) {
+# beta.sequence <- seq(-1, -0.1, by=0.1)
+# all.pii <- data.table(node=character(), pii.value = numeric(), beta = numeric())
+# g <- all.ring.graphs[[1]]
+# g.ed <- edge.distance(g)
+# for(b in beta.sequence) {
 #  g.pii <- pii(g,e.dist = g.ed, pii.beta = b)
 #  td <- data.table(node=1:vcount(g), pii.value=as.numeric(g.pii), degree = degree(g), beta=b)
 #  all.pii <- rbind(all.pii, td)
-#}
+# }
 
 
 #md(all.ring.graphs[[1]])
@@ -303,10 +302,76 @@ x <- do.call('rbind', mclapply(seq(-1, -0.01, by=0.01), function(b) {
   p <- pii(g, pii.beta = b)
   data.table(b = b, rc = cor(p1, p, method = "spearman"))
 }, mc.cores = 6))
-ggplot(x, aes(x=b, y=rc)) + geom_line() + geom_smooth()
+ggplot(x, aes(x=b, y=rc)) + geom_line() + geom_smooth(method='loess') +
+  scale_y_continuous(lim=c(0,1.0))
 
-#run calc, find beta where rc goes below .707
-#calculate avg minimum distance to negative edge
-#calculate avg distance to negative edge
 
-#finds beta where rc goes below .707
+### Beta - Node Stability Graph ################################################
+
+g <- randomGraph(maxnegtie = 0.2, badeggchance = 0.01)
+gp <- graphData(g)
+
+
+
+plot(g, vertex.size = 4, vertex.label = NA)
+inc <- 0.01
+x <- do.call('rbind', mclapply(seq(-1, -0.01, by=inc), function(b) {
+  p <- pii(g, pii.beta = b)
+  piir <- rank(p)
+  data.table(b = b, nd = V(g)$name, pii = p, piir = piir)
+}, mc.cores = 6))
+
+ggplot(x, aes(x=b, y=piir, group=nd, color=nd)) +
+  geom_line()
+
+ggplot(x, aes(x=b, y=piir, group=nd, color=nd)) +
+  geom_line(alpha=0.6, size = 1) +
+  theme_bw() +
+  scale_x_continuous('Beta', lim = c(-0.9, -0.1)) +
+  scale_y_continuous('PII')
+
+comp.left <- -0.9
+comp.right <- -0.1
+rc <- do.call('rbind', lapply(unique(x$b)[-1], function(bb) {
+  pii <- x[b == bb, pii]
+  pii.left <- x[b == comp.left, pii]
+  pii.right <- x[b == comp.right, pii]
+  data.table(b = bb, rc.left = cor(pii, pii.left, method = "spearman"), rc.right = cor(pii, pii.right, method = "spearman"))
+}))
+
+rc.diff <- function(b, g, comp.left=-0.9, comp.right=-0.5) {
+  p <- pii(g, pii.beta = b)
+  pii.left <- pii(g, pii.beta = comp.left)
+  pii.right <- pii(g, pii.beta = comp.right)
+  rc.left = cor(p, pii.left, method = "spearman")
+  rc.right = cor(p, pii.right, method = "spearman")
+  return(abs(rc.left - rc.right))
+}
+rc.diff(-0.63, g)
+o <- optim(par=c(-0.8), fn = rc.diff, gr = NULL,
+           g = g, comp.right = comp.right, comp.left = comp.left,
+           method='Brent', lower = -1, upper = -0.001)
+cross.y <- cor(pii(g, pii.beta = o$par), pii(g, pii.beta = comp.left), method = "spearman")
+cross.point <- data.frame(xx=o$par, yy=cross.y)
+
+## Need to find the crossing
+rc.m <- melt(rc, id.vars='b')
+ggplot() +
+  geom_line(data = rc.m, aes(x=b, y=value, group=variable)) +
+  geom_text(data=cross.point, aes(x=xx, y=yy, label = round(xx,3)), size = 4, vjust=-2) +
+  scale_y_continuous(lim=c(0,1.0)) +
+  scale_x_continuous(lim=c(-1, -0.1))
+
+
+
+################################################################################
+### All graphs analysis
+
+all.graphs = list()
+mclapply(1:1000, function(i) {
+  return(randomGraph(i, maxnegtie = ))
+}
+
+
+
+

@@ -173,7 +173,8 @@ graphData <- function(g) {
              meanTrans = mean(transitivity(g, type='local'), na.rm=T),
              lowCorBeta = lowCor(g),
              avgMinDistToNegEdge = avgMinDistNegEdge(g),
-             avdDistOfNegEdge = avgDistNegEdge(g))
+             avdDistOfNegEdge = avgDistNegEdge(g),
+             optimBeta(g))
 
 }
 
@@ -222,5 +223,21 @@ avgDistNegEdge <- function(g){
     x <- x + sum(negEdgeDist[,i])
   }
   return(x / vcount(g))
+}
+
+optimBeta <- function(g, init.beta = -0.8, comp.left=-0.9, comp.right=-0.5) {
+
+  rc.diff <- function(b, g) {
+    p <- pii(g, pii.beta = b)
+    pii.left <- pii(g, pii.beta = comp.left)
+    pii.right <- pii(g, pii.beta = comp.right)
+    rc.left = cor(p, pii.left, method = "spearman")
+    rc.right = cor(p, pii.right, method = "spearman")
+    return(abs(rc.left - rc.right))
+  }
+
+  o <- optim(par= init.beta, fn = rc.diff, gr = NULL, g = g,
+             method='Brent', lower = -1, upper = -0.001)
+  return(o$par)
 }
 
