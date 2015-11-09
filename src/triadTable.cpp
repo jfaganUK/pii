@@ -16,7 +16,7 @@ DataFrame triadTable(List edgeDistance, IntegerMatrix shortPaths, IntegerMatrix 
   CharacterVector direction(0);
   NumericVector valence(0);
   NumericVector distance(0);
-  //IntegerVector nodeNum(0);
+  IntegerVector nodeNum(0);
   IntegerVector realvertices(0);
   for(int k = 1; k<=vertices.length(); k++){
     realvertices.push_back(k);
@@ -26,9 +26,6 @@ DataFrame triadTable(List edgeDistance, IntegerMatrix shortPaths, IntegerMatrix 
   int ed, dis1, dis2, dis3;
   String ref;
   int truev, diff;
-
-  //   triadID = character(), nodeID = character(), direction = character(), valence = integer(),
-  //     distance = numeric(), nodeNum = integer()
 
   for(int i = 0; i < triads.nrow(); i++) {
     node1 = triads(i,0);

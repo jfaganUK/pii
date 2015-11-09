@@ -6,8 +6,6 @@
 #'
 #' @param g An igraph graph
 #' @export
-
-
 triad.table <- function(g) {
   if(is.null(V(g)$name)){V(g)$name <- 1:vcount(g)}
   e.dist <- edge.distance(g)
