@@ -12,3 +12,4 @@ Imports:
     igraph,
     Rcpp
 LinkingTo: Rcpp
+RoxygenNote: 5.0.1
