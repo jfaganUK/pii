@@ -11,9 +11,19 @@ library(magrittr)
 library(parallel)
 
 options(stringsAsFactors=F)
-igraph.options(vertex.color = '#FFFFFFAA', vertex.alpha = 0.5, vertex.size = 15, vertex.frame.color = 'grey60',
-               vertex.label.family = 'Ubuntu', vertex.label.cex = 0.7, vertex.label.color = 'blue')
+igraph.options(vertex.color = '#FFFFFFAA', vertex.alpha = 0.5, vertex.size = 15, vertex.frame.color = '#eeeeee',
+               edge.width = 4, vertex.frame.size = 0,
+               vertex.label.family = 'Futura Medium', vertex.label.cex = 1.5, vertex.label.color = '#333333')
 
+thm <- theme(
+  panel.background = element_rect(fill = '#EEEEEE'),
+  plot.background = element_rect(fill = '#EEEEEE'),
+  axis.ticks = element_blank(),
+  axis.text = element_text(family = 'Futura Medium'),
+  axis.title = element_text(family = 'Futura Medium', size = 15),
+  panel.grid.minor = element_blank(),
+  panel.grid.major = element_line(color = '#AAAAAA')
+)
 
 
 letterNames <- function(n) {

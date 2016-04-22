@@ -38,55 +38,11 @@ V(g)$name <- letters[1:N]
 
 pii(g)
 
-
-# there are 18 nodes
-x <- read.csv('sampson.txt',stringsAsFactors=F)
-N <- 18
-networkNames <- c("samplk1","samplk2","samplk3","sampdlk","sampes","sampdes","sampin","sampnin","samppr","sampnpr")
-x$Node <- trim(x$Node)
-
-samp <- list()
-for(i in 1:length(networkNames)) {
-  y <- x[(1:18) + ((i - 1) * 18),]
-  rownames(y) <- y$Node
-  y <- as.matrix(y[,-1])
-  samp[[i]] <- y
-}
-names(samp) <- networkNames
-
-
-g <- igraph::graph.adjacency(samp[['samplk3']])
-plotty(g)
-
-# indegree for everything...
-do.call('rbind', lapply(samp, function(x) {
-  g <- graph.adjacency(x)
-  degree(g, mode="in")
-}))
-
-# The political networks paper uses Esteem and Disesteem (sampes and sampdes)
-
-g.pos <- graph.adjacency(samp[['sampes']])
-g.neg <- graph.adjacency(samp[['sampdes']])
-
-samp.el <- rbind(data.table(melt(samp[['sampes']]))[value != 0,][,valence := 1],
-                 data.table(melt(samp[['sampdes']]))[value != 0,][,valence :=-1])
-setnames(samp.el, c('Var1','Var2'),c('source','target'))
-
-#g <- graph.edgelist(as.matrix(samp.el[,c('source','target'),with=F]), directed = T)
-g <- graph.data.frame(samp.el)
-E(g)$valence <- samp.el$valence
-E(g)$weight <- samp.el$value
-g <- as.undirected(g, edge.attr.comb = 'min')
-#g <- simplify(g, edge.attr.comb = 'min')
-g.samp <- g
+data('g.samp')
 
 countTieValence <- function(v, val) {
   sum(E(g.samp)[inc(v)]$valence == val)
 }
-
-g.samp <- remove.edge.attribute(g.samp, "value")
-save(g.samp, file = 'g.samp.rda')
 
 tt <- data.table(nm = V(g.samp)$name,
                  pii = pii(g.samp),
@@ -145,24 +101,18 @@ node_distance_holder <- shortest.paths(g, V(g))
 #   td <- triadicPII(g, pii.delta = d)
 #   piis <- rbind(piis, data.table(node = V(g)$name, pii = td, delta = d))
 # }
+# ggplot(piis) + geom_line(aes(x=delta, y=pii, group=node, color=node))
 
-ggplot(piis) + geom_line(aes(x=delta, y=pii, group=node, color=node))
-
-
-
-g1 <- randomGraph()
-V(g1)$name <- paste0(V(g1)$name, '1')
-V(g1)$name <- paste0(V(g1)$name, '1')
-g2 <- randomGraph()
-V(g2)$name <- paste0(V(g2)$name, '2')
-igraph.options(edge.attr.comb = list(valence = max))
-g3 <- graph.union(g1, g2)
-
-E(g3)$color <- ifelse(!is.na(E(g3)$color_1), E(g3)$color_1, E(g3)$color_2)
-plot(g3)
-
-
-
+# g1 <- randomGraph()
+# V(g1)$name <- paste0(V(g1)$name, '1')
+# V(g1)$name <- paste0(V(g1)$name, '1')
+# g2 <- randomGraph()
+# V(g2)$name <- paste0(V(g2)$name, '2')
+# igraph.options(edge.attr.comb = list(valence = max))
+# g3 <- graph.union(g1, g2)
+#
+# E(g3)$color <- ifelse(!is.na(E(g3)$color_1), E(g3)$color_1, E(g3)$color_2)
+# plot(g3)
 
 
 piis <- data.table(nd=character(), pii=numeric(), beta=numeric())
@@ -191,9 +141,9 @@ ggplot(piis, aes(x=beta, y=pii, group=nd, color=nd)) + geom_line()
 #  td <- data.table(node=1:vcount(g), pii.value=as.numeric(g.pii), degree = degree(g), beta=b)
 #  all.pii <- rbind(all.pii, td)
 # }
-  beta.sequence <- seq(-0.9, -0.5, by=0.01)
+g <- getThinkGraph2()
+beta.sequence <- seq(-1, -0.1, by=0.01)
 all.pii <- data.table(node=character(), pii.value = numeric(), beta = numeric())
-# g <- all.ring.graphs[[1]]
 g.ed <- edge.distance(g)
 for(b in beta.sequence) {
   g.pii <- pii(g,e.dist = g.ed, pii.beta = b)
@@ -201,18 +151,29 @@ for(b in beta.sequence) {
   all.pii <- rbind(all.pii, td)
 }
 
-ggplot(all.pii[node %in% as.character(V(g)$name[c(5,9)])],
-       aes(x=beta, y=pii.value, group = node, color = node)) +
-  geom_line()
+ggplot(all.pii,aes(x=beta, y=pii.value, group = node, color = node)) +
+  scale_color_manual(values = c('a' = '#E41A1C', 'b' = '#377EB8', 'c' = '#4DAF4A', 'd' = '#984EA3', 'e' = '#FF7F00', 'f' = '#FFFF33')) +
+  geom_line(alpha = 0.8, size = 2) + thm
 
+V(g)$color <- RColorBrewer::brewer.pal(6, 'Set1')
 
-ggplot(all.pii,
-       aes(x=beta, y=pii.value, group = node, color = node)) +
-  geom_line()
+### Animation the changes
+library(animation)
+saveGIF({
+  par(mar = c(0,0,2.5,0), bg='#eeeeee' )
+  lo <- layout_nicely(g)
+  for(b in c(beta.sequence, rev(beta.sequence))) {
+    V(g)$size <- all.pii %>% filter(beta == b) %>%
+      select(pii.value) %>% collect %>% .[[1]] %>% rescale(to = c(5,35))
+    plot(g, layout = lo)
+    title(paste0('Beta = ', b))
+  }
+  dev.off()
+}, interval = 0.01, movie.name = 'pii_by_beta.gif', ani.width = 600, ani.height = 600)
 
 #md(all.ring.graphs[[1]])
-gp <- do.call('rbind', mclapply(all.graphs, graphData, mc.cores=5))
-ggplot(gp, aes(y=rankCor, x=diameter)) + geom_point() + geom_smooth(method='lm')
+# gp <- do.call('rbind', mclapply(all.graphs, graphData, mc.cores=5))
+# ggplot(gp, aes(y=rankCor, x=diameter)) + geom_point() + geom_smooth(method='lm')
 
 ### Random graphs - Watts Strogatz ############################################
 
@@ -327,7 +288,9 @@ ggplot(x, aes(x=b, y=rc)) + geom_line() + geom_smooth(method='loess') +
 ### Beta - Node Stability Graph ################################################
 g <- randomGraph(maxnegtie = 0.2, badeggchance = 0.1)
 gp <- graphData(g)
-plot(g, vertex.size = 4, vertex.label = NA)
+par(bg = '#eeeeee', mar = c(0,0,0,0))
+plot(g, vertex.size = 4, vertex.label = NA, edge.width = 1, vertex.color = '#333333')
+dev.off(); dev.new()
 
 inc <- 0.01
 x <- do.call('rbind', mclapply(seq(-1, -0.01, by=inc), function(b) {
@@ -339,13 +302,13 @@ x <- do.call('rbind', mclapply(seq(-1, -0.01, by=inc), function(b) {
 ggplot(x, aes(x=b, y=pii, group=nd, color=nd)) +
   scale_x_continuous(expression(beta), limits = c(-1,-0.5)) +
   scale_y_continuous('PII Score', limits = c(-10, 5)) +
-  geom_line(size=1)
+  geom_line(size=1) + thm + theme(legend.position = 'none')
 
 ggplot(x, aes(x=b, y=piir, group=nd, color=nd)) +
   geom_line(alpha=0.9, size = 1) +
-  theme_bw() +
   scale_x_continuous(expression(beta), lim = c(-1, -0.5)) +
-  scale_y_continuous('PII Ranked Score')
+  scale_y_continuous('PII Ranked Score') +
+  thm + theme(legend.position = 'none')
 
 comp.left <- -0.9
 comp.right <- -0.4
@@ -376,10 +339,10 @@ rc.m <- melt(rc, id.vars='b')
 ggplot() +
   geom_line(data = rc.m, aes(x=b, y=value, group=variable)) +
   geom_text(data=cross.point, aes(x=xx, y=yy, label = round(xx,3)), size = 4, vjust=-2) +
-  scale_y_continuous(lim=c(0,1.0)) +
-  scale_x_continuous(lim=c(comp.left, comp.right))
+  scale_y_continuous('Rank Correlation', lim=c(0,1.0)) +
+  scale_x_continuous(expression(beta), lim=c(comp.left, comp.right)) + thm
 
-### Node Crossing ##############################################################
+  ### Node Crossing ##############################################################
 # g <- randomGraph()
 g <- getThinkGraph()
 plot(g)
