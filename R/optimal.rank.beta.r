@@ -6,6 +6,7 @@
 #' @param comp.left The beta on the left for comparison
 #' @param comp.right The beta on the right for comparison
 #' @param starting.beta The beta value to start when starting the optimization
+#' @export
 #' @examples
 #' pii(g, pii.beta = optimal.rank.beta(g))
 #'
