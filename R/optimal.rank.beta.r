@@ -25,7 +25,7 @@ optimal.rank.beta <-  function(g, comp.left = -0.9, comp.right = -0.4, starting.
               g = g, comp.right = comp.right, comp.left = comp.left, method = 'Brent',
               lower = -1, upper = -0.001)
   cross.point <- o$par
-  attr(cross.point, 'spearman.correlation') <- cross.y
+  attr(cross.point, 'spearman.correlation') <- cor(pii(g, pii.beta = cross.point), pii(g, pii.beta = cross.point), method = 'spearman')
   attr(cross.point, 'approx') <- o$value
   return(cross.point)
 }
