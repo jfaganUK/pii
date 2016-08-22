@@ -10,7 +10,7 @@
 #' pii(g, pii.beta = optimal.rank.beta(g))
 #'
 
-optimal.rank.beta <-  function(g, comp.left = -0.9, comp.right = -0.4, starting.beta = -0.8) {
+optimal.rank.beta <-  function(g, comp.left = -0.9, comp.right = -0.5, starting.beta = -0.8) {
   rc.diff <- function(b, g, comp.left = comp.left, comp.right = comp.right) {
       p <- pii(g, pii.beta = b)
       pii.left <- pii(g, pii.beta = comp.left)

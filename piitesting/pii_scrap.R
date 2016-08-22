@@ -285,6 +285,30 @@ ggplot(x, aes(x=b, y=rc)) + geom_line() + geom_smooth(method='loess') +
   scale_y_continuous(lim=c(0,1.0))
 
 
+### Two networks ###############################################################
+# one that's stable, and one that isn't
+
+# An unstable graph
+g1 <- getThinkGraph2()
+par(mar=c(0,0,0,0))
+plot(g1)
+pii.beta1 <- optimal.rank.beta(g1)
+suppressWarnings(cor(pii(g1, pii.beta = -0.9), pii(g1, pii.beta=-0.5), method = "spearman"))
+pii.diagnostic.plot(g1)
+
+# A stable graph
+g2 <- g1
+E(g2)$valence <- 1
+E(g2)[1 %--% 2]$valence <- -1
+E(g2)$color <- ifelse(E(g2)$valence == -1, "red", "black")
+plot(g2)
+(pii.beta2 <- optimal.rank.beta(g2, comp.left = -0.9, comp.right = -0.5))
+suppressWarnings(cor(pii(g2, pii.beta = -0.9), pii(g2, pii.beta=-0.5), method = "spearman"))
+pii.diagnostic.plot(g2)
+
+
+
+
 ### Beta - Node Stability Graph ################################################
 g <- randomGraph(maxnegtie = 0.2, badeggchance = 0.1)
 gp <- graphData(g)
@@ -311,7 +335,7 @@ ggplot(x, aes(x=b, y=piir, group=nd, color=nd)) +
   thm + theme(legend.position = 'none')
 
 comp.left <- -0.9
-comp.right <- -0.4
+comp.right <- -0.5
 rc <- do.call('rbind', lapply(unique(x$b)[-1], function(bb) {
   pii <- x[b == bb, pii]
   pii.left <- x[b == comp.left, pii]
@@ -340,7 +364,7 @@ ggplot() +
   geom_line(data = rc.m, aes(x=b, y=value, group=variable)) +
   geom_text(data=cross.point, aes(x=xx, y=yy, label = round(xx,3)), size = 4, vjust=-2) +
   scale_y_continuous('Rank Correlation', lim=c(0,1.0)) +
-  scale_x_continuous(expression(beta), lim=c(comp.left, comp.right)) + thm
+  scale_x_continuous(expression(beta), lim=c(-1, -0.01)) + thm
 
   ### Node Crossing ##############################################################
 # g <- randomGraph()

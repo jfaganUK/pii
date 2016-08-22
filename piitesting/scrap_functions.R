@@ -16,8 +16,8 @@ igraph.options(vertex.color = '#FFFFFFAA', vertex.alpha = 0.5, vertex.size = 15,
                vertex.label.family = 'Futura Medium', vertex.label.cex = 1.5, vertex.label.color = '#333333')
 
 thm <- theme(
-  panel.background = element_rect(fill = '#EEEEEE'),
-  plot.background = element_rect(fill = '#EEEEEE'),
+  panel.background = element_rect(fill = 'white'),
+  plot.background = element_rect(fill = 'white'),
   axis.ticks = element_blank(),
   axis.text = element_text(family = 'Futura Medium'),
   axis.title = element_text(family = 'Futura Medium', size = 15),
@@ -256,9 +256,8 @@ avgDistNegEdge <- function(g){
   return(x / (vcount(g) * sum(E(g)$valence == -1)))
 }
 
-optimBeta <- function(g, init.beta = -0.8, comp.left=-0.9, comp.right=-0.5) {
-
-  rc.diff <- function(b, g) {
+optimBeta <-  function(g, comp.left = -0.9, comp.right = -0.5, starting.beta = -0.8, unbounded = F, lower.bound = comp.left, upper.bound = comp.right) {
+  rc.diff <- function(b, g, comp.left = comp.left, comp.right = comp.right) {
     p <- pii(g, pii.beta = b)
     pii.left <- pii(g, pii.beta = comp.left)
     pii.right <- pii(g, pii.beta = comp.right)
@@ -267,8 +266,85 @@ optimBeta <- function(g, init.beta = -0.8, comp.left=-0.9, comp.right=-0.5) {
     return(abs(rc.left - rc.right))
   }
 
-  o <- optim(par= init.beta, fn = rc.diff, gr = NULL, g = g,
-             method='Brent', lower = -1, upper = -0.001)
-  return(o$par)
+  if(unbounded) {
+    o <- optim( par = c(starting.beta), fn = rc.diff, gr = NULL,
+                g = g, comp.right = comp.right, comp.left = comp.left, method = 'Brent',
+                lower = -1, upper = -0.0001)
+  } else {
+    o <- optim( par = c(starting.beta), fn = rc.diff, gr = NULL,
+                g = g, comp.right = comp.right, comp.left = comp.left, method = 'Brent',
+                lower = lower.bound, upper = upper.bound)
+  }
+
+  cross.point <- o$par
+  p <- pii(g, pii.beta = o$par)
+  pii.left <- pii(g, pii.beta = comp.left)
+  attr(cross.point, 'spearman.correlation') <- cor(p, pii.left, method = "spearman")
+  attr(cross.point, 'approx') <- o$value
+  return(cross.point)
+}
+
+pii.diagnostic.plot <- function(g) {
+  require(ggplot2)
+  require(parallel)
+  require(gridExtra)
+
+  inc <- 0.01
+  x <- do.call('rbind', mclapply(seq(-1, -0.01, by=inc), function(b) {
+    p <- pii(g, pii.beta = b)
+    piir <- rank(p)
+    data.table(b = b, nd = V(g)$name, pii = p, piir = piir)
+  }, mc.cores = 6))
+
+  p1 <- ggplot(x, aes(x=b, y=pii, group=nd, color=nd)) +
+    scale_x_continuous(expression(beta), limits = c(-1,-0.01)) +
+    scale_y_continuous('PII Score') +
+    geom_line(size=1) + thm + theme(legend.position = 'none')
+
+  # color the lines by pii rank change
+  piic <- x %>% filter(b %in% c(-0.9, -0.5)) %>%
+    dcast(nd ~ b, value.var = 'piir') %>%
+    mutate(piic = `-0.9` - `-0.5`)
+  x <- x %>% left_join(piic, by = 'nd')
+  p2 <- ggplot(x, aes(x=b, y=piir, group=nd, color=piic)) +
+    geom_line(alpha=0.9, size = 1) +
+    scale_color_distiller(type = 'div', palette = 5) +
+    scale_x_continuous(expression(beta), lim = c(-1, -0.01)) +
+    scale_y_continuous('PII Ranked Score') +
+    thm + theme(legend.position = 'none', panel.grid.major.y = element_blank())
+
+  comp.left <- -0.9
+  comp.right <- -0.5
+  rc <- do.call('rbind', lapply(unique(x$b)[-1], function(bb) {
+    pii <- x[b == bb, pii]
+    pii.left <- x[b == comp.left, pii]
+    pii.right <- x[b == comp.right, pii]
+    data.table(b = bb, rc.left = cor(pii, pii.left, method = "spearman"), rc.right = cor(pii, pii.right, method = "spearman"))
+  }))
+
+  # rc.diff <- function(b, g, comp.left=-0.9, comp.right=-0.5) {
+  #   p <- pii(g, pii.beta = b)
+  #   pii.left <- pii(g, pii.beta = comp.left)
+  #   pii.right <- pii(g, pii.beta = comp.right)
+  #   rc.left = cor(p, pii.left, method = "spearman")
+  #   rc.right = cor(p, pii.right, method = "spearman")
+  #   return(abs(rc.left - rc.right))
+  # }
+  # rc.diff(-0.63, g)
+  # o <- optim(par=c(-0.8), fn = rc.diff, gr = NULL,
+  #            g = g, comp.right = comp.right, comp.left = comp.left,
+  #            method='Brent', lower = -1, upper = -0.001)
+  # cross.y <- cor(pii(g, pii.beta = o$par), pii(g, pii.beta = comp.left), method = "spearman")
+  # cross.point <- data.frame(xx=o$par, yy=cross.y)
+
+  ## Need to find the crossing
+  rc.m <- melt(rc, id.vars='b')
+  p3 <- ggplot() +
+    geom_line(data = rc.m, aes(x=b, y=value, group=variable)) +
+    # geom_text(data=cross.point, aes(x=xx, y=yy, label = round(xx,3)), size = 4, vjust=2) +
+    scale_y_continuous('Rank Correlation', lim=c(0,1.0)) +
+    scale_x_continuous(expression(beta), lim=c(-1, -0.01)) + thm
+
+  grid.arrange(p2, p3)
 }
 
