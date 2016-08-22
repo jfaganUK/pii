@@ -2,6 +2,7 @@
 
 export(edge.distance)
 export(get.edge.network)
+export(optimal.rank.beta)
 export(pii)
 export(piiCalc)
 export(piiTriadicCalc)
