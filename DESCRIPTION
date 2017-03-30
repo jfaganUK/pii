@@ -10,6 +10,8 @@ LazyData: true
 License: Apache 2.0
 Imports:
     igraph,
-    Rcpp
+    Rcpp,
+    dplyr,
+    reshape2
 LinkingTo: Rcpp
 RoxygenNote: 5.0.1
