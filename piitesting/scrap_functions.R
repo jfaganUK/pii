@@ -61,7 +61,7 @@ guid <- function() {
 }
 
 randomGraph <- function(maxnegtie = 20, pendchance = 0.2, badeggchance = 0.05, benegpercent = 0.8){
-  N <- sample(10:100, 1)
+  N <- sample(250:300, 1)
   graph <- watts.strogatz.game(1, N, 3, 0.05)
 
   #random pendants

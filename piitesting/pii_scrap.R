@@ -78,7 +78,7 @@ getThinkGraph <- function() {
   g
 }
 
-getThinkGraph2 <- function() {
+g <- getThinkGraph2 <- function() {
   el <- matrix(c('a','b', 'a','c', 'b','c', 'b','d', 'c','d', 'd','e', 'e','f'), ncol=2, byrow=T)
   g <- graph.edgelist(el, directed = F)
   E(g)$valence <- 1
