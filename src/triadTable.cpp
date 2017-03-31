@@ -1,3 +1,4 @@
+// [[Rcpp::depends(RcppArmadillo)]]
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -5,12 +6,10 @@
 #include <sstream>
 #include <string>
 #include <RcppArmadillo.h>
+
 using namespace Rcpp;
 
-//[[Rcpp::depends("RcppArmadillo")]]
-//' @export
 // [[Rcpp::export]]
-
 DataFrame triadTable(NumericVector edgeDistance, IntegerMatrix shortPaths, IntegerMatrix triads, CharacterVector vertices, NumericVector edgevalence){
   IntegerVector edgeDistanceDims = edgeDistance.attr("dim");
   arma::cube cubeEdgeDistance(edgeDistance.begin(), edgeDistanceDims[0], edgeDistanceDims[1], edgeDistanceDims[2], false);
