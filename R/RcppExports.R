@@ -22,7 +22,6 @@ piiTriadicCalc <- function(edgeDistance, edgevalence, piiBeta, piiX, maxDistance
     .Call('pii_piiTriadicCalc', PACKAGE = 'pii', edgeDistance, edgevalence, piiBeta, piiX, maxDistance, triadTable, piiDelta)
 }
 
-#' @export
 triadTable <- function(edgeDistance, shortPaths, triads, vertices, edgevalence) {
     .Call('pii_triadTable', PACKAGE = 'pii', edgeDistance, shortPaths, triads, vertices, edgevalence)
 }
