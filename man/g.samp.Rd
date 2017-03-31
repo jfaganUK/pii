@@ -19,4 +19,3 @@ g.samp
 This network contains nodes representing monks in a monastery.
 }
 \keyword{datasets}
-

@@ -16,4 +16,3 @@ Returns a modfied network where each edge in the original network is split in tw
 g <- graph.ring(10)
 get.edge.network(g)
 }
-

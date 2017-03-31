@@ -20,4 +20,3 @@ Returns a numeric vector of PII scores for each vertex in network.
 \examples{
 pii(g)
 }
-

@@ -2,12 +2,12 @@
 
 export(edge.distance)
 export(get.edge.network)
+export(getEdgeNetworkCalc)
 export(optimal.rank.beta)
 export(pii)
 export(piiCalc)
 export(piiTriadicCalc)
 export(triad.table)
-export(triadTable)
 export(triadic.edges)
 export(valenceEdgeCounts)
 export(vid)

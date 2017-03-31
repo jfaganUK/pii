@@ -4,7 +4,7 @@
 \alias{edge.distance}
 \title{Edge Distance}
 \usage{
-edge.distance(g, edge.network = NULL, add.names = T)
+edge.distance(g, edge.network = NULL, lookup.mat = F, add.names = T)
 }
 \arguments{
 \item{g}{An igraph graph}
@@ -15,6 +15,5 @@ edge.distance(g, edge.network = NULL, add.names = T)
 Calculates the distance from each node in the network to each edge in the network.
 }
 \examples{
-get.edge.network(g)
+edge.distance(g)
 }
-

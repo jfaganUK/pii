@@ -20,4 +20,3 @@ piiCalc(edgeDistance, edgevalence, piiBeta, piiX, maxDistance)
 \description{
 Calculate the PII scores after the edge distances are calculated
 }
-

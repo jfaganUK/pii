@@ -4,7 +4,7 @@
 \alias{optimal.rank.beta}
 \title{Optimal Rank Beta}
 \usage{
-optimal.rank.beta(g, comp.left = -0.9, comp.right = -0.4,
+optimal.rank.beta(g, comp.left = -0.9, comp.right = -0.5,
   starting.beta = -0.8)
 }
 \arguments{
@@ -23,4 +23,3 @@ This finds recommends a beta value between two extremes where the rank correlati
 pii(g, pii.beta = optimal.rank.beta(g))
 
 }
-

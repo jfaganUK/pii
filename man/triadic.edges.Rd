@@ -15,4 +15,3 @@ Identifies which edges in a network are part of a triad.
 \examples{
 get.edge.network(g)
 }
-

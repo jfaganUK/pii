@@ -17,4 +17,3 @@ Returns the vertex ID when given a name and a graph.
 \examples{
 vid(g, x="Billy")
 }
-

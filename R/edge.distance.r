@@ -6,7 +6,7 @@
 #' @param edge.network A pre-calculated edge network from ```get.edge.network```
 #' @export
 #' @examples
-#' get.edge.network(g)
+#' edge.distance(g)
 
 edge.distance <- function(g, edge.network = NULL, lookup.mat = F, add.names=T) {
   if(is.null(edge.network)) {
@@ -23,7 +23,7 @@ edge.distance <- function(g, edge.network = NULL, lookup.mat = F, add.names=T) {
     g.el <- get.edgelist(g, names = F)
     # this creates an index for the 3d matrix and merges it with the melted
     b <- do.call(rbind, replicate(ncol(g.dist), g.el, simplify=F)) %>%
-      cbind(reshape2::melt(g.dist)) %>%
+      cbind(melt(g.dist)) %>%
       select(-Var1)
     m[b %>% select(`1`, `2`, `Var2`) %>% as.matrix] <- b$value
     return(m)

@@ -78,11 +78,13 @@ getThinkGraph <- function() {
   g
 }
 
-g <- getThinkGraph2 <- function() {
-  el <- matrix(c('a','b', 'a','c', 'b','c', 'b','d', 'c','d', 'd','e', 'e','f'), ncol=2, byrow=T)
+getThinkGraph2 <- function() {
+  el <- matrix(c('a','b','a','c','b','c', 'a','d', 'd','e', 'd','f', 'd','g', 'g','e', 'g','h', 'e','h'), ncol=2, byrow=T)
   g <- graph.edgelist(el, directed = F)
   E(g)$valence <- 1
-  E(g)[5 %--% 6]$valence <- -1
+  E(g)[1 %--% 2]$valence <- -1
+  E(g)[1 %--% 3]$valence <- -1
+  E(g)[5 %--% 7]$valence <- -1
   E(g)$color <- ifelse(E(g)$valence == -1, "red", "black")
   g
 }

@@ -3,6 +3,7 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+//' @export
 // [[Rcpp::export]]
 IntegerMatrix getEdgeNetworkCalc(IntegerMatrix inputEdgeList) {
 	int nr = inputEdgeList.nrow();

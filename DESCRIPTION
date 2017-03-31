@@ -3,7 +3,7 @@ Title: Implementation of the Political Independence Index
 Version: 0.1
 Authors@R: "Jesse Fagan <jesse.fagan@uky.edu> [aut, cre]"
 Description: The Political Independence Index (PII) was created to measure
-    power from a dependency perspective
+    power in networks with negative and positive ties from a dependency perspective
 Depends:
     R (>= 3.1.1)
 LazyData: true
@@ -14,4 +14,4 @@ Imports:
     dplyr,
     reshape2
 LinkingTo: Rcpp, RcppArmadillo
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

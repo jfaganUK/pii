@@ -12,6 +12,5 @@ triad.table(g)
 \description{
 Creates a table that contains triadID - the three nodes that make up the triad, nodeID - the character name of the node,
 direction of the triad from the node, the valence of the triad from the node's perspective, distance of the triad from the node,
-and nodeNum - the numderic value of the node
+and nodeNum - the numeric value of the node
 }
-
