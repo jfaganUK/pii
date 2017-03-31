@@ -1,26 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <Rcpp.h>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <RcppArmadillo.h>
 using namespace Rcpp;
 
+//[[Rcpp::depends("RcppArmadillo")]]
 //' @export
 // [[Rcpp::export]]
-DataFrame triadTable(List edgeDistance, IntegerMatrix shortPaths, IntegerMatrix triads, CharacterVector vertices, NumericVector edgevalence){
+
+DataFrame triadTable(NumericVector edgeDistance, IntegerMatrix shortPaths, IntegerMatrix triads, CharacterVector vertices, NumericVector edgevalence){
+  IntegerVector edgeDistanceDims = edgeDistance.attr("dim");
+  arma::cube cubeEdgeDistance(edgeDistance.begin(), edgeDistanceDims[0], edgeDistanceDims[1], edgeDistanceDims[2], false);
   DataFrame triadtable;
   CharacterVector triadID(0);
   NumericVector nodeID(0);
   CharacterVector direction(0);
   NumericVector valence(0);
   NumericVector distance(0);
-  IntegerVector nodeNum(0);
-  IntegerVector realvertices(0);
-  for(int k = 1; k<=vertices.length(); k++){
-    realvertices.push_back(k);
-  }
+
   int node1, node2, node3;
   String triname, edge1_2, edge1_3, edge2_3;
   int ed, dis1, dis2, dis3;
@@ -48,10 +48,9 @@ DataFrame triadTable(List edgeDistance, IntegerMatrix shortPaths, IntegerMatrix 
     edge1_3 = snode1 + "-" + snode3;
     edge2_3 = snode2 + "-" + snode3;
     for(int j = 0; j < vertices.length(); j++){
-      NumericMatrix m = edgeDistance[j];
-      dis1 = m(node1 - 1, node2 - 1);
-      dis2 = m(node1 - 1, node3 - 1);
-      dis3 = m(node2 - 1, node3 - 1);
+      dis1 = cubeEdgeDistance((node1 - 1), (node2 - 1), j);
+      dis2 = cubeEdgeDistance((node1 - 1), (node3 - 1), j);
+      dis3 = cubeEdgeDistance((node2 - 1), (node3 - 1), j);
       if (dis1 == dis2 & dis1 == dis3) {
         int nodedis1_2 = shortPaths[node1, node2];
         int nodedis1_3 = shortPaths[node1, node3];
@@ -76,11 +75,10 @@ DataFrame triadTable(List edgeDistance, IntegerMatrix shortPaths, IntegerMatrix 
           truev = edgevalence[triads(i, 1)];
         }
         triadID.push_back(triname);
-        nodeID.push_back(realvertices[j]);
+        nodeID.push_back(j+1);
         direction.push_back("IN ");
         valence.push_back(truev);
         distance.push_back(dis1);
-        //nodeNum.push_back(realvertices[j]);
       }
       else{
         if (dis1 != dis2) {
@@ -104,11 +102,10 @@ DataFrame triadTable(List edgeDistance, IntegerMatrix shortPaths, IntegerMatrix 
           truev = edgevalence[triads(i, 1)];
         }
         triadID.push_back(triname);
-        nodeID.push_back(realvertices[j]);
+        nodeID.push_back(j+1);
         direction.push_back("OUT");
         valence.push_back(truev);
         distance.push_back(diff);
-        //nodeNum.push_back(realvertices[j]);
       }
     }
   }
