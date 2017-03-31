@@ -13,5 +13,5 @@ Imports:
     Rcpp,
     dplyr,
     reshape2
-LinkingTo: Rcpp
+LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 5.0.1
