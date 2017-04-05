@@ -18,6 +18,7 @@ triad.table <- function(g) {
   # enumerate all the triads
   triads <- cliques(g, min = 3, max= 3)
   triads <- do.call('rbind', lapply(triads, function(x) { as.integer(x) }))
+  if(is.null(triads)){stop("There are no triads in the graph")}
 
   # start the triad table
   # create a copy of the triads for each node, stack it all up
@@ -31,26 +32,59 @@ triad.table <- function(g) {
   b$distEdgeAC <- e.dist.l[as.matrix(b[,c('triadNodeA','triadNodeC', 'focalNode')])]
   b$distEdgeBC <- e.dist.l[as.matrix(b[,c('triadNodeB','triadNodeC', 'focalNode')])]
 
-  # direction, 1 is inward, 0 is outward
-  b <- mutate(b, direction = ifelse(distEdgeAB == distEdgeAC & distEdgeAB == distEdgeBC, 1, 0))
-  b$closingEdge1 <- NA
-  b$closingEdge2 <- NA
-
-  # with outward facing triads, the closing edge is always the furthest away
-  farthestEdge <- apply(b[b$direction == 0,c('distEdgeAB', 'distEdgeAC', 'distEdgeBC')], 1, which.max)
-  farthestEdge
-
-  # with inward facing triads, the closing edge is the one between the two closest nodes
   b$nodeDistA <- n.dist[as.matrix(b[, c('triadNodeA', 'focalNode')])]
   b$nodeDistB <- n.dist[as.matrix(b[, c('triadNodeB', 'focalNode')])]
   b$nodeDistC <- n.dist[as.matrix(b[, c('triadNodeC', 'focalNode')])]
 
+  # direction, 1 is inward, 0 is outward
+  b <- mutate(b, direction = ifelse(distEdgeAB == distEdgeAC & distEdgeAB == distEdgeBC,
+                                    ifelse(nodeDistA == nodeDistB & nodeDistA == nodeDistC, 2, 1), 0))
+  b$closingNode1 <- NA
+  b$closingNode2 <- NA
 
+  #lookup matrix for valence of edges between two lookup nodes
+  v.mat <- matrix(NA, ncol = vcount(g), nrow = vcount(g))
+  v.mat[get.edgelist(g, names = F)] <- E(g)$valence
 
+  # with outward facing triads, the closing edge is always the furthest away
+  farthestEdge <- apply(b[b$direction == 0,c('distEdgeAB', 'distEdgeAC', 'distEdgeBC')], 1, which.max)
 
+  m <- matrix(c(1, 2, 1, 3, 2, 3), byrow = T, ncol = 2)
+  m <- m[farthestEdge, ]
+  m <- cbind(1:nrow(m), m)
 
-  dimNum <- vcount(g)
-  if(is.null(triads)){stop("There are no triads in the graph")}
-  triad_table <- triadTable(edgeDistance = e.dist.l, shortPaths = n.dist, triads=triads, vertices=V(g), edgevalence = E(g)$valence)
-  return(triad_table)
+  b1 <- b[b$direction == 0, c('triadNodeA', 'triadNodeB', "triadNodeC")]
+  b[b$direction == 0, "closingNode1"] <- b1[m[, c(1, 2)]]
+  b[b$direction == 0, "closingNode2"] <- b1[m[, c(1, 3)]]
+
+  # with inward facing triads, the closing edge is the one between the two closest nodes
+  b1 <- b[b$direction == 1, c('triadNodeA', 'triadNodeB', "triadNodeC")]
+  x <- apply(b[b$direction == 1, c("nodeDistA", "nodeDistB", "nodeDistC")], 1, function(x) { which(x == min(x)) }) %>%
+     t %>% as.matrix %>% cbind(1:nrow(.), .)
+  b[b$direction == 1, 'closingNode1'] <- b1[x[, c(1, 2)]]
+  b[b$direction == 1, 'closingNode2'] <- b1[x[, c(1, 3)]]
+
+  # ambiguous triads are replicated and given the valence of each edge
+  b1 <- b[b$direction == 2, ]
+  b <- b[b$direction != 2,]
+
+  b1a <- b1
+  b1a$closingNode1 <- b1a$triadNodeA
+  b1a$closingNode2 <- b1a$triadNodeB
+
+  b1b <- b1
+  b1b$closingNode1 <- b1b$triadNodeA
+  b1b$closingNode2 <- b1b$triadNodeC
+
+  b1c <- b1
+  b1c$closingNode1 <- b1c$triadNodeB
+  b1c$closingNode2 <- b1c$triadNodeC
+
+  b <- rbind(b, b1a, b1b, b1c)
+
+  # add valence
+  b$closeEdgeValence <- v.mat[b[,c("closingNode1", "closingNode2")] %>% as.matrix]
+  b$closeEdgeDist <- e.dist.l[b[,c("closingNode1", "closingNode2", "focalNode")] %>% as.matrix]
+
+  return(b)
 }

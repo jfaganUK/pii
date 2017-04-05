@@ -50,16 +50,17 @@ NumericVector piiTriadicCalc(IntegerMatrix edgeDistance, NumericVector edgevalen
 	int nEdges = edgeDistance.nrow(), nNodes = edgeDistance.ncol();
 	IntegerVector negCount(maxDistance+1), posCount(maxDistance+1);
   IntegerVector negOutCount(maxDistance+1), negInCount(maxDistance+1),
-                posOutCount(maxDistance+1), posInCount(maxDistance+1);
+                posOutCount(maxDistance+1), posInCount(maxDistance+1),
+                negAmbCount(maxDistance+1), posAmbCount(maxDistance+1);
 	NumericVector piiBetaVector(maxDistance + 1);
 	NumericVector piIndex(nNodes);
 	double triadicPart;
 	int ed; // a holder for the current edge distance
 
   CharacterVector triadID = triadTable["triadID"];
-  CharacterVector direction = triadTable["direction"];
-  IntegerVector valence = triadTable["valence"];
-  IntegerVector distance = triadTable["distance"];
+  IntegerVector direction = triadTable["direction"];
+  IntegerVector valence = triadTable["closeEdgeValence"];
+  IntegerVector distance = triadTable["closeEdgeDist"];
   IntegerVector nodeNum = triadTable["nodeID"];
 
 	// Initialize piiBetaVector
@@ -80,12 +81,12 @@ NumericVector piiTriadicCalc(IntegerMatrix edgeDistance, NumericVector edgevalen
 			}
 		}
     for(int r = 0; r < triadID.size(); r++){
-        String currDir = direction[r];
+        int currDir = direction[r];
         int currVal = valence[r];
         int currDist = distance[r];
         int currNode = nodeNum[r]-1;
         if(i == currNode){
-          if(currDir == "OUT"){
+          if(currDir == 0){
             if(currVal < 0){
               negOutCount[currDist]++;
             }
@@ -105,7 +106,8 @@ NumericVector piiTriadicCalc(IntegerMatrix edgeDistance, NumericVector edgevalen
     }
 		for(int k = 0; k <= maxDistance; k++) {
 			triadicPart = piiDelta * (pow(negOutCount[k], piiX) - pow(posOutCount[k], piiX) +
-                                pow(negInCount[k], piiX) - pow(posInCount[k], piiX));
+                                pow(negInCount[k], piiX) - pow(posInCount[k], piiX) +
+                                pow(negAmbCount[k], piiX) - pow(posAmbCount[k], piiX));
 			piIndex[i] += piiBetaVector[k] * (pow(posCount[k], piiX) - pow(negCount[k], piiX) + triadicPart);
 			posOutCount[k] = 0;
 			negOutCount[k] = 0;
