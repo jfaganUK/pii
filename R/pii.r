@@ -42,7 +42,7 @@ pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1,
     x <- do.call('c',lapply(graph.list, function(g) {
       pii(g, pii.beta=pii.beta, triadic = triadic, pii.delta = pii.delta, max.degree = maxdeg)
       }))
-    names(x) <- V(g)$name
+    x <- x[V(g)$name]
     return(x)
   }
   if(is.null(e.dist)) {
