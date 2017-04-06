@@ -28,6 +28,7 @@ pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1,
     names(x) <- V(g)$name
     return(x)
   }
+
   # Also, if they don't want to calculate for the "whole-network" then we still want PII values for
   # each node, but just run pii for each component. If you are doing the whole network though, calculate
   # 'x' first and use the same 'x' value for each run.
@@ -57,7 +58,7 @@ pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1,
   pii.x <- (log(2) - log(abs(pii.beta))) / log(max.degree)
   if(triadic) {
     triad_table <- triad.table(g)
-    triad_table[order(triad_table$focalNode), ]
+    triad_table <- triad_table[order(triad_table$focalNode), ]
     x <- piiTriadicCalc(e.dist, edgevalence, pii.beta, pii.x, max.distance, triad_table, pii.delta)
   } else {
     x <- piiCalc(e.dist, edgevalence, pii.beta, pii.x, max.distance)

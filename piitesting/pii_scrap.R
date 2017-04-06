@@ -90,7 +90,7 @@ getThinkGraph2 <- function() {
 }
 
 getThinkGraph3 <- function() {
-  el <- matrix(c('a','b','a','c','b','c', 'a','d', 'b', 'd', 'c', 'd'), ncol=2, byrow=T)
+  el <- matrix(c('a','b','a','c','b','c', 'a','d', 'b', 'd', 'c', 'd', 'd','e', 'd','f', 'd','g', 'g','e', 'g','h', 'e','h'), ncol=2, byrow=T)
   g <- graph.edgelist(el, directed = F)
   E(g)$valence <- 1
   E(g)[2 %--% 3]$valence <- -1
