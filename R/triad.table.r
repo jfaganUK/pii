@@ -54,33 +54,39 @@ triad.table <- function(g) {
   m <- cbind(1:nrow(m), m)
 
   b1 <- b[b$direction == 0, c('triadNodeA', 'triadNodeB', "triadNodeC")]
-  b[b$direction == 0, "closingNode1"] <- b1[m[, c(1, 2)]]
-  b[b$direction == 0, "closingNode2"] <- b1[m[, c(1, 3)]]
+  if(nrow(b1) != 0){
+    b[b$direction == 0, "closingNode1"] <- b1[m[, c(1, 2)]]
+    b[b$direction == 0, "closingNode2"] <- b1[m[, c(1, 3)]]
+  }
 
   # with inward facing triads, the closing edge is the one between the two closest nodes
   b1 <- b[b$direction == 1, c('triadNodeA', 'triadNodeB', "triadNodeC")]
-  x <- apply(b[b$direction == 1, c("nodeDistA", "nodeDistB", "nodeDistC")], 1, function(x) { which(x == min(x)) }) %>%
-     t %>% as.matrix %>% cbind(1:nrow(.), .)
-  b[b$direction == 1, 'closingNode1'] <- b1[x[, c(1, 2)]]
-  b[b$direction == 1, 'closingNode2'] <- b1[x[, c(1, 3)]]
+  if(nrow(b1) != 0){
+    x <- apply(b[b$direction == 1, c("nodeDistA", "nodeDistB", "nodeDistC")], 1, function(x) { which(x == min(x)) }) %>%
+       t %>% as.matrix %>% cbind(1:nrow(.), .)
+    b[b$direction == 1, 'closingNode1'] <- b1[x[, c(1, 2)]]
+    b[b$direction == 1, 'closingNode2'] <- b1[x[, c(1, 3)]]
+  }
 
   # ambiguous triads are replicated and given the valence of each edge
   b1 <- b[b$direction == 2, ]
-  b <- b[b$direction != 2,]
+  if(nrow(b1) != 0){
+    b <- b[b$direction != 2,]
 
-  b1a <- b1
-  b1a$closingNode1 <- b1a$triadNodeA
-  b1a$closingNode2 <- b1a$triadNodeB
+    b1a <- b1
+    b1a$closingNode1 <- b1a$triadNodeA
+    b1a$closingNode2 <- b1a$triadNodeB
 
-  b1b <- b1
-  b1b$closingNode1 <- b1b$triadNodeA
-  b1b$closingNode2 <- b1b$triadNodeC
+    b1b <- b1
+    b1b$closingNode1 <- b1b$triadNodeA
+    b1b$closingNode2 <- b1b$triadNodeC
 
-  b1c <- b1
-  b1c$closingNode1 <- b1c$triadNodeB
-  b1c$closingNode2 <- b1c$triadNodeC
+    b1c <- b1
+    b1c$closingNode1 <- b1c$triadNodeB
+    b1c$closingNode2 <- b1c$triadNodeC
 
-  b <- rbind(b, b1a, b1b, b1c)
+    b <- rbind(b, b1a, b1b, b1c)
+  }
 
   # add valence
   b$closeEdgeValence <- v.mat[b[,c("closingNode1", "closingNode2")] %>% as.matrix]

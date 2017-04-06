@@ -57,6 +57,7 @@ pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1,
   pii.x <- (log(2) - log(abs(pii.beta))) / log(max.degree)
   if(triadic) {
     triad_table <- triad.table(g)
+    triad_table[order(triad_table$focalNode), ]
     x <- piiTriadicCalc(e.dist, edgevalence, pii.beta, pii.x, max.distance, triad_table, pii.delta)
   } else {
     x <- piiCalc(e.dist, edgevalence, pii.beta, pii.x, max.distance)

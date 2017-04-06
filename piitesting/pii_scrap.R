@@ -88,6 +88,17 @@ getThinkGraph2 <- function() {
   E(g)$color <- ifelse(E(g)$valence == -1, "red", "black")
   g
 }
+
+getThinkGraph3 <- function() {
+  el <- matrix(c('a','b','a','c','b','c', 'a','d', 'b', 'd', 'c', 'd'), ncol=2, byrow=T)
+  g <- graph.edgelist(el, directed = F)
+  E(g)$valence <- 1
+  E(g)[2 %--% 3]$valence <- -1
+  E(g)[2 %--% 4]$valence <- -1
+  E(g)[3 %--% 4]$valence <- -1
+  E(g)$color <- ifelse(E(g)$valence == -1, "red", "black")
+  g
+}
 g <- getThinkGraph2()
 plot(g)
 pii(g, triadic=T)

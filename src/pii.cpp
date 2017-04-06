@@ -56,12 +56,13 @@ NumericVector piiTriadicCalc(IntegerMatrix edgeDistance, NumericVector edgevalen
 	NumericVector piIndex(nNodes);
 	double triadicPart;
 	int ed; // a holder for the current edge distance
+  int z = 0;
 
-  CharacterVector triadID = triadTable["triadID"];
+  //CharacterVector triadID = triadTable["triadID"];
   IntegerVector direction = triadTable["direction"];
   IntegerVector valence = triadTable["closeEdgeValence"];
   IntegerVector distance = triadTable["closeEdgeDist"];
-  IntegerVector nodeNum = triadTable["nodeID"];
+  IntegerVector focalNode = triadTable["focalNode"];
 
 	// Initialize piiBetaVector
 	for(int k = 0; k <= maxDistance; k++) {
@@ -80,21 +81,21 @@ NumericVector piiTriadicCalc(IntegerMatrix edgeDistance, NumericVector edgevalen
 				posCount[ed]++;
 			}
 		}
-    for(int r = 0; r < triadID.size(); r++){
-        int currDir = direction[r];
-        int currVal = valence[r];
-        int currDist = distance[r];
-        int currNode = nodeNum[r]-1;
-        if(i == currNode){
-          if(currDir == 0){
-            if(currVal < 0){
-              negOutCount[currDist]++;
-            }
-            else{
-              posOutCount[currDist]++;
-            }
+    while((focalNode[z]-1) == i){
+        int currDir = direction[z];
+        int currVal = valence[z];
+        int currDist = distance[z];
+        //int currNode = focalNode[z]-1;
+        if(currDir == 0){
+          if(currVal < 0){
+            negOutCount[currDist]++;
           }
           else{
+            posOutCount[currDist]++;
+          }
+        }
+        else{
+          if(currDir == 1){
             if(currVal < 0){
               negInCount[currDist]++;
             }
@@ -102,7 +103,16 @@ NumericVector piiTriadicCalc(IntegerMatrix edgeDistance, NumericVector edgevalen
               posInCount[currDist]++;
             }
           }
+          else{
+            if(currVal < 0){
+              negAmbCount[currDist]++;
+            }
+            else{
+               posAmbCount[currDist]++;
+            }
+          }
         }
+        z++;
     }
 		for(int k = 0; k <= maxDistance; k++) {
 			triadicPart = piiDelta * (pow(negOutCount[k], piiX) - pow(posOutCount[k], piiX) +
