@@ -23,7 +23,7 @@ pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1,
     stop("Valence attribute is not a numeric vector.")
   }
   if(length(E(g)) < 2) {
-    warning("At least one component has less than two edges in the network.")
+    warning("At least one component has fewer than two edges in the network.")
     x <- rep(NA, vcount(g))
     names(x) <- V(g)$name
     return(x)
@@ -57,7 +57,15 @@ pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1,
   edgevalence <- E(g)$valence
   pii.x <- (log(2) - log(abs(pii.beta))) / log(max.degree)
   if(triadic) {
-    triad_table <- triad.table(g)
+    triads <- cliques(g, min = 3, max= 3)
+    triads <- do.call('rbind', lapply(triads, function(x) { as.integer(x) }))
+    if(is.null(triads)){
+      warning("There are no triads in the component. Returning non-triadic PII.")
+      x <- piiCalc(e.dist, edgevalence, pii.beta, pii.x, max.distance)
+      names(x) <- V(g)$name
+      return(x)
+    }
+    triad_table <- triad.table(g, triads)
     triad_table <- triad_table[order(triad_table$focalNode), ]
     x <- piiTriadicCalc(e.dist, edgevalence, pii.beta, pii.x, max.distance, triad_table, pii.delta)
   } else {

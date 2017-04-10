@@ -7,18 +7,13 @@
 #' @param g An igraph graph
 #' @useDynLib pii
 #' @export
-triad.table <- function(g) {
+triad.table <- function(g, triads) {
   if(is.null(V(g)$name)){V(g)$name <- 1:vcount(g)}
   n.dist <- shortest.paths(g, V(g))
   e.valence <- cbind(get.edgelist(g, names = F), E(g)$valence)
 
   # 3d edge distance matrix of edge, edge, focal.node
   e.dist.l <- edge.distance(g, lookup.mat = T)
-
-  # enumerate all the triads
-  triads <- cliques(g, min = 3, max= 3)
-  triads <- do.call('rbind', lapply(triads, function(x) { as.integer(x) }))
-  if(is.null(triads)){stop("There are no triads in the graph")}
 
   # start the triad table
   # create a copy of the triads for each node, stack it all up
