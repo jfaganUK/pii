@@ -28,6 +28,10 @@ pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1,
     names(x) <- V(g)$name
     return(x)
   }
+  if(pii.delta == 0){
+    warning("Delta set at zero. Running non-triadic PII")
+    triadic = F
+  }
 
   # Also, if they don't want to calculate for the "whole-network" then we still want PII values for
   # each node, but just run pii for each component. If you are doing the whole network though, calculate
