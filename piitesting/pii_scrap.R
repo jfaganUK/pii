@@ -553,12 +553,12 @@ save(rgk, file = "./piitesting/random-graph-k-stats.rda")
 
 
 rand.graphs = list()
-for(i in 1:300){
+for(i in 1:150){
   rand.graphs[[i]] <- randomGraph(maxnegtie = 0.1, pendchance = 0.02, badeggchance = 0.1)
 }
 
-rgl <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=5))
-save(rgl, file = "./piitesting/random-graph-l-stats.rda")
+rgl <- do.call('rbind', mclapply(rand.graphs, graphData, mc.cores=3))
+save(rgl, rand.graphs, file = "./piitesting/random-graph-l-work-comp-3-stats.rda")
 
 
 table <- c()

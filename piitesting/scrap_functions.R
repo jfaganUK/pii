@@ -61,7 +61,7 @@ guid <- function() {
 }
 
 randomGraph <- function(maxnegtie = 20, pendchance = 0.2, badeggchance = 0.05, benegpercent = 0.8){
-  N <- sample(250:300, 1)
+  N <- sample(30:100, 1)
   graph <- watts.strogatz.game(1, N, 3, 0.05)
 
   #random pendants
@@ -203,8 +203,9 @@ graphData <- function(g) {
              meanTrans = mean(transitivity(g, type='local'), na.rm=T),
              lowCorBeta = lowCor(g),
              avgMinDistToNegEdge = avgMinDistNegEdge(g),
-             avdDistOfNegEdge = avgDistNegEdge(g),
-             optimBeta = optimBeta(g))
+             avgDistOfNegEdge = avgDistNegEdge(g),
+             optimBeta = optimBeta(g),
+             epsStability = epsilon_stability(g))
              #numCrosses = nrow(crosses(g)),
              #sizeAdjNumCross = nrow(crosses(g)) / factorial(vcount(g)))
 }
@@ -348,3 +349,34 @@ pii.diagnostic.plot <- function(g) {
   grid.arrange(p2, p3)
 }
 
+findLines <- function(beta, g){
+  x_dist <- -1 - beta
+  x_increment <- abs(x_dist/ 50)
+  x_vals <- seq(-1, beta, x_increment)
+  y_vals <- seq(1, 0, -.02)
+  pii_left <- pii(g, pii.beta = x_vals[1] + y_vals[1])
+  pii_right <- pii(g, pii.beta = x_vals[1])
+  corr <- cor(pii_left, pii_right, method = "spearman")
+  point_correlations <- corr
+  for(i in 2:51){
+    pii_left <- pii(g, pii.beta = x_vals[i] + y_vals[i])
+    pii_right <- pii(g, pii.beta = x_vals[i])
+    corr <- cor(pii_left, pii_right, method = "spearman")
+    point_correlations <- c(point_correlations, corr)
+  }
+  return(point_correlations)
+}
+
+epsilon_stability <- function(g){
+  betas <- seq(-.98, -.02, .02)
+  corrs <- findLines(betas[1], g)
+  avg_corr <- corrs
+  for(i in 2:length(betas)){
+    avg_corr <- cbind(avg_corr, findLines(betas[i], g))
+  }
+
+  optim <- avg_corr %>% colMeans(na.rm =T) %>% which.max
+  optim_beta <- betas[optim]
+
+  return(optim_beta)
+}
