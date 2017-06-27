@@ -77,3 +77,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+
+static const R_CallMethodDef CallEntries[] = {
+    {"pii_getEdgeNetworkCalc", (DL_FUNC) &pii_getEdgeNetworkCalc, 1},
+    {"pii_piiCalc", (DL_FUNC) &pii_piiCalc, 5},
+    {"pii_piiTriadicCalc", (DL_FUNC) &pii_piiTriadicCalc, 7},
+    {"pii_triadTable", (DL_FUNC) &pii_triadTable, 5},
+    {"pii_valenceEdgeCounts", (DL_FUNC) &pii_valenceEdgeCounts, 3},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_pii(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
+}

@@ -28,3 +28,13 @@ interruptable_saving <- function(num, point){
 interp_num = 1
 interp_point = 1
 interruptable_saving(interp_num, interp_point)
+
+all.f <- list.files('./piitesting/random_graph_stats/')
+data <- paste("./piitesting/random_graph_stats/", all.f[1], sep = "")
+load(data)
+all_graph_data <- graph_data
+for(i in 2:length(all.f)){
+  data <- paste("./piitesting/random_graph_stats/", all.f[i], sep = "")
+  load(data)
+  all_graph_data <- rbind(all_graph_data, graph_data)
+}
