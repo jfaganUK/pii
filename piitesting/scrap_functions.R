@@ -205,7 +205,7 @@ graphData <- function(g) {
              avgMinDistToNegEdge = avgMinDistNegEdge(g),
              avgDistOfNegEdge = avgDistNegEdge(g),
              optimBeta = optimBeta(g),
-             epsStability = epsilon_stability(g))
+             epsStability = epsilon_stability2(g))
              #numCrosses = nrow(crosses(g)),
              #sizeAdjNumCross = nrow(crosses(g)) / factorial(vcount(g)))
 }
@@ -242,8 +242,9 @@ lowCor <- function(g){
 avgMinDistNegEdge <- function(g){
   if(clusters(g)$no > 1){return(NA)}          # if it's multiple components
   if(!any(E(g)$valence == -1)) { return(NA) } # if there's no neg edge
-  negEdgeDist <- edge.distance(g)[which(E(g)$valence == -1), ]
-  negEdgeDist <- as.matrix(negEdgeDist)
+  ed <- edge.distance(g)
+  negEdgeDist <- ed[which(E(g)$valence == -1), ]
+  negEdgeDist <- matrix(negEdgeDist, ncol = vcount(g))
   x <- mean(apply(negEdgeDist, 2, min))
   return(x)
 }
@@ -379,4 +380,17 @@ epsilon_stability <- function(g){
   optim_beta <- betas[optim]
 
   return(optim_beta)
+}
+
+epsilon_stability2 <- function(g, initial.beta = -0.8) {
+
+  o.func <- function(b, g) {
+    d <- findLines(b, g)
+    1 - mean(d, na.rm=T)
+  }
+
+  o <- optim(par = c(initial.beta), gr = NULL, fn = o.func, g = g, method = 'Brent',
+              lower = -1, upper = -0.0001,
+             control = list())
+  return(o$par)
 }

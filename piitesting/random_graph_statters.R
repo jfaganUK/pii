@@ -16,8 +16,10 @@ interruptable_saving <- function(num, point){
       g <- do.call(randomGraph, combos.list[[n]])
       graph_data <- graphData(g)
       graph_data <-  cbind(graph_data, as.data.table(combos.list[[n]]))
+      graph_data$step <- n
+      graph_data$num <- i
       filename <- paste("./piitesting/random_graph_stats/", "step", n, "num", i, ".rda",sep = "_")
-      save(graph_data, file = filename)
+      save(g, graph_data, file = filename)
     }
     if(point!=1){
       point <- 1
@@ -38,3 +40,7 @@ for(i in 2:length(all.f)){
   load(data)
   all_graph_data <- rbind(all_graph_data, graph_data)
 }
+
+no_neg_high <- all_graph_data[all_graph_data$epsStability == -0.98]
+no_neg_low <- all_graph_data[all_graph_data$epsStability > -0.03] #==-0.02 giving false for values of -0.02
+no_neg_mid <- all_graph_data[all_graph_data$epsStability == -0.5]
