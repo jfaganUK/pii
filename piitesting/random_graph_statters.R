@@ -1,4 +1,4 @@
-negtie <- seq(0, 30, 10)
+negtie <- seq(1, 31, 10)
 pendchance <- seq(0, .2, .05)
 badegg <- seq(0, .1, .05)
 combos <- expand.grid(negtie, pendchance, badegg) %>%
