@@ -7,11 +7,12 @@
 #' @param g An igraph graph
 #' @param pii.beta Should the vertex and edge names be added to the rows and columns of the matrix.
 #' @param e.dist (optional) an edge.distance matrix, if calculated ahead of time.
+#' @param t.table (optional) the triad table, if calculated ahead of time
 #' @export
 #' @examples
 #' pii(g)
 
-pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1, max.degree = NULL) {
+pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1, max.degree = NULL, t.table = NULL) {
   if(!("igraph" %in% class(g))) {
     stop("The graph object must be an igraph object.")
   }
@@ -69,8 +70,11 @@ pii <- function(g, pii.beta = -0.8, e.dist = NULL, triadic = F, pii.delta = 0.1,
       names(x) <- V(g)$name
       return(x)
     }
-    triad_table <- triad.table(g, triads)
-    triad_table <- triad_table[order(triad_table$focalNode), ]
+    if(is.null(t.table)){
+      triad_table <- triad.table(g, triads)
+      triad_table <- triad_table[order(triad_table$focalNode), ]
+    }
+    else{triad_table <- t.table}
     x <- piiTriadicCalc(e.dist, edgevalence, pii.beta, pii.x, max.distance, triad_table, pii.delta)
   } else {
     x <- piiCalc(e.dist, edgevalence, pii.beta, pii.x, max.distance)
